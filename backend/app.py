@@ -21,9 +21,8 @@ GIGACHAT_MODELS = os.getenv(
     "GigaChat-Max,GigaChat-Pro,GigaChat",
 )
 GIGACHAT_INSECURE = os.getenv("GIGACHAT_INSECURE", "1") == "1"
-
-STATE_PATH = "/opt/screener-bot/state.json"
-STATS_PATH = "/opt/screener-bot/stats.json"
+STATE_PATH = os.getenv("STATE_PATH", "/var/lib/s-analystexe/state.json")
+STATS_PATH = os.getenv("STATS_PATH", "/var/lib/s-analystexe/stats.json")
 VISIT_TTL_SEC = 6 * 60 * 60
 
 
