@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Скринер — Подготовься к собесу аналитика</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .shadow-brutal { box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); }
+        .shadow-brutal-lg { box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
+        .shadow-brutal-sm { box-shadow: 3px 3px 0px 0px rgba(0,0,0,1); }
+        .hover-press:hover { transform: translate(2px, 2px); box-shadow: none; }
+        .hover-press-sm:hover { transform: translate(1px, 1px); box-shadow: none; }
+    </style>
+</head>
+<body class="bg-[#FFFEF9] text-black">
+
+    <!-- Navigation -->
+    <nav class="py-4 px-6 md:px-12 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 bg-[#FCD34D] border-2 border-black rounded-xl shadow-brutal-sm flex items-center justify-center font-black text-lg">
+                С
+            </div>
+            <span class="font-bold text-xl">скринер</span>
+        </div>
+        <a href="#signup" class="bg-white border-2 border-black rounded-xl px-4 py-2 font-semibold shadow-brutal-sm hover-press-sm transition-all cursor-pointer">
+            Войти
+        </a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="px-6 md:px-12 py-12 md:py-20">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-block bg-[#FCD34D] border-2 border-black rounded-full px-4 py-1 mb-6 shadow-brutal-sm font-medium text-sm">
+                🎯 для системных и бизнес-аналитиков
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
+                приди на собес<br>
+                <span class="bg-[#FCD34D] px-2">уверенным</span>,<br>
+                а не трясущимся
+            </h1>
+            <p class="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+                AI-тренажёр, который готовит тебя под конкретную вакансию. 
+                Кидаешь вакансию — получаешь персональные вопросы и слабые зоны.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#signup" data-cta="hero-try" class="bg-[#FCD34D] border-2 border-black rounded-2xl px-8 py-4 font-bold text-lg shadow-brutal hover-press transition-all cursor-pointer">
+                    Попробовать бесплатно →
+                </a>
+                <a href="#how" data-cta="hero-how" class="bg-white border-2 border-black rounded-2xl px-8 py-4 font-bold text-lg shadow-brutal hover-press transition-all cursor-pointer">
+                    Как это работает
+                </a>
+                <a href="./matcher.html" data-cta="hero-matcher" class="bg-black text-white border-2 border-black rounded-2xl px-8 py-4 font-bold text-lg shadow-brutal hover-press transition-all cursor-pointer">
+                    Матчер резюме →
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pain Points Section -->
+    <section class="px-6 md:px-12 py-16 bg-white border-y-2 border-black">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-black text-center mb-4">знакомо?</h2>
+            <p class="text-center text-gray-600 mb-12 text-lg">если хоть один пункт про тебя — скринер поможет</p>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Pain 1 -->
+                <div class="bg-[#FFFEF9] border-2 border-black rounded-2xl p-6 shadow-brutal">
+                    <div class="text-3xl mb-4">😰</div>
+                    <h3 class="font-bold text-xl mb-2">«Не знаю, что будут спрашивать»</h3>
+                    <p class="text-gray-600">
+                        Гуглишь «вопросы на собеседовании аналитика», находишь списки из 2018 года. 
+                        Готовишься ко всему — и ни к чему конкретно.
+                    </p>
+                </div>
+
+                <!-- Pain 2 -->
+                <div class="bg-[#FFFEF9] border-2 border-black rounded-2xl p-6 shadow-brutal">
+                    <div class="text-3xl mb-4">🤯</div>
+                    <h3 class="font-bold text-xl mb-2">«На митингах киваю, но не понимаю»</h3>
+                    <p class="text-gray-600">
+                        Коллеги говорят про API, интеграции, очереди сообщений — 
+                        а ты делаешь умное лицо и надеешься, что не спросят.
+                    </p>
+                </div>
+
+                <!-- Pain 3 -->
+                <div class="bg-[#FFFEF9] border-2 border-black rounded-2xl p-6 shadow-brutal">
+                    <div class="text-3xl mb-4">📉</div>
+                    <h3 class="font-bold text-xl mb-2">«Завалился на том, что вроде знал»</h3>
+                    <p class="text-gray-600">
+                        Думал, что SQL знаешь — а на собесе спросили про оконные функции, 
+                        и ты поплыл. Обидно.
+                    </p>
+                </div>
+
+                <!-- Pain 4 -->
+                <div class="bg-[#FFFEF9] border-2 border-black rounded-2xl p-6 shadow-brutal">
+                    <div class="text-3xl mb-4">⏰</div>
+                    <h3 class="font-bold text-xl mb-2">«Времени мало, а готовиться много»</h3>
+                    <p class="text-gray-600">
+                        Собес через неделю, а ты ещё работаешь на текущем месте. 
+                        Нужна точечная подготовка, а не 40-часовой курс.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how" class="px-6 md:px-12 py-16">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-black text-center mb-4">как это работает</h2>
+            <p class="text-center text-gray-600 mb-12 text-lg">три шага — и ты готов к собесу</p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-[#FCD34D] border-2 border-black rounded-2xl shadow-brutal mx-auto mb-4 flex items-center justify-center text-2xl font-black">
+                        1
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Кидаешь вакансию</h3>
+                    <p class="text-gray-600">
+                        Копируешь текст вакансии или ссылку. AI вытаскивает ключевые требования и навыки.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-[#FCD34D] border-2 border-black rounded-2xl shadow-brutal mx-auto mb-4 flex items-center justify-center text-2xl font-black">
+                        2
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Проходишь тренировку</h3>
+                    <p class="text-gray-600">
+                        Получаешь персональные вопросы под эту вакансию. Отвечаешь, сравниваешь с эталоном.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-[#FCD34D] border-2 border-black rounded-2xl shadow-brutal mx-auto mb-4 flex items-center justify-center text-2xl font-black">
+                        3
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Видишь слабые зоны</h3>
+                    <p class="text-gray-600">
+                        Получаешь отчёт: что подтянуть, что почитать, где ты силён. Идёшь на собес уверенным.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="px-6 md:px-12 py-16 bg-[#FCD34D] border-y-2 border-black">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-black text-center mb-12">что внутри</h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white border-2 border-black rounded-2xl p-6 shadow-brutal">
+                    <div class="font-bold text-lg mb-2">🎯 Вопросы под вакансию</div>
+                    <p class="text-gray-600">Не generic-список, а конкретные вопросы по требованиям из твоей вакансии</p>
+                </div>
+
+                <div class="bg-white border-2 border-black rounded-2xl p-6 shadow-brutal">
+                    <div class="font-bold text-lg mb-2">📚 Эталонные ответы</div>
+                    <p class="text-gray-600">Каждый вопрос с развёрнутым ответом — учись на лучших практиках</p>
+                </div>
+
+                <div class="bg-white border-2 border-black rounded-2xl p-6 shadow-brutal">
+                    <div class="font-bold text-lg mb-2">📊 Карта компетенций</div>
+                    <p class="text-gray-600">Видишь свой профиль: SQL, интеграции, UML, soft skills — где силён, где нет</p>
+                </div>
+
+                <div class="bg-white border-2 border-black rounded-2xl p-6 shadow-brutal">
+                    <div class="font-bold text-lg mb-2">📖 Что почитать</div>
+                    <p class="text-gray-600">По каждой слабой зоне — ссылки на материалы для быстрой прокачки</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="px-6 md:px-12 py-16">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-black mb-12">сделано практиком</h2>
+            
+            <div class="bg-white border-2 border-black rounded-2xl p-8 shadow-brutal-lg">
+                <div class="w-20 h-20 bg-[#FCD34D] border-2 border-black rounded-full mx-auto mb-4 flex items-center justify-center text-3xl">
+                    👨‍💻
+                </div>
+                <p class="text-lg mb-4">
+                    «6+ лет в аналитике: МТС, ВТБ, МойОфис. Прошёл десятки собеседований с обеих сторон стола. 
+                    Знаю, что реально спрашивают и где чаще всего заваливаются.»
+                </p>
+                <div class="font-bold">Никита</div>
+                <div class="text-gray-500">Chief Analyst · автор @analyst_exe</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="px-6 md:px-12 py-16 bg-white border-y-2 border-black">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-black text-center mb-4">начни бесплатно</h2>
+            <p class="text-center text-gray-600 mb-12 text-lg">попробуй на одной вакансии — реши, нужно ли больше</p>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+                <!-- Free -->
+                <div class="bg-[#FFFEF9] border-2 border-black rounded-2xl p-8 shadow-brutal">
+                    <div class="text-sm font-semibold text-gray-500 mb-2">БЕСПЛАТНО</div>
+                    <div class="text-4xl font-black mb-4">0 ₽</div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-600">✓</span> 1 вакансия
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-600">✓</span> 10 вопросов
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-600">✓</span> Базовый отчёт
+                        </li>
+                        <li class="flex items-center gap-2 text-gray-400">
+                            <span>✗</span> Эталонные ответы
+                        </li>
+                    </ul>
+                    <a href="#signup" data-cta="pricing-free" class="block text-center bg-white border-2 border-black rounded-xl px-6 py-3 font-bold shadow-brutal-sm hover-press-sm transition-all cursor-pointer">
+                        Попробовать
+                    </a>
+                </div>
+
+                <!-- Pro -->
+                <div class="bg-[#FCD34D] border-2 border-black rounded-2xl p-8 shadow-brutal-lg relative">
+                    <div class="absolute -top-3 -right-3 bg-black text-white text-xs font-bold px-3 py-1 rounded-full">
+                        популярный
+                    </div>
+                    <div class="text-sm font-semibold mb-2">НА ПЕРИОД ПОИСКА</div>
+                    <div class="text-4xl font-black mb-4">499 ₽<span class="text-lg font-normal">/мес</span></div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-2">
+                            <span>✓</span> Безлимит вакансий
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span>✓</span> Все вопросы + эталоны
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span>✓</span> Полная карта компетенций
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span>✓</span> Материалы для прокачки
+                        </li>
+                    </ul>
+                    <a href="#signup" data-cta="pricing-pro" class="block text-center bg-black text-white border-2 border-black rounded-xl px-6 py-3 font-bold shadow-brutal-sm hover-press-sm transition-all cursor-pointer">
+                        Оформить подписку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="signup" class="px-6 md:px-12 py-20">
+        <div class="max-w-2xl mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-black mb-4">готов попробовать?</h2>
+            <p class="text-gray-600 mb-8 text-lg">
+                Оставь почту — пришлём доступ, когда запустимся. 
+                Первые 100 человек получат Pro бесплатно на месяц.
+            </p>
+
+            <div class="bg-white border-2 border-black rounded-2xl p-8 shadow-brutal-lg">
+                <form id="signup-form" class="flex flex-col sm:flex-row gap-4">
+                    <input 
+                        id="email-input"
+                        type="email" 
+                        required
+                        placeholder="твоя@почта.ru" 
+                        class="flex-1 border-2 border-black rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-[#FCD34D]"
+                    >
+                    <button id="submit-btn" type="submit" class="bg-[#FCD34D] border-2 border-black rounded-xl px-8 py-3 font-bold text-lg shadow-brutal hover-press transition-all whitespace-nowrap">
+                        Хочу доступ →
+                    </button>
+                </form>
+                <p id="status-msg" class="text-sm text-gray-500 mt-4">
+                    Никакого спама. Только уведомление о запуске.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const form = document.getElementById('signup-form');
+        const emailInput = document.getElementById('email-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const statusMsg = document.getElementById('status-msg');
+
+        const sendEvent = (event) => {
+            fetch('/api/event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event })
+            }).catch(() => {});
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            sendEvent('page_view');
+
+            const ctas = document.querySelectorAll('[data-cta]');
+            ctas.forEach((el) => {
+                el.addEventListener('click', () => sendEvent('cta_click'));
+            });
+
+            const formSection = document.getElementById('signup');
+            if (formSection && 'IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            sendEvent('form_view');
+                            obs.disconnect();
+                        }
+                    });
+                }, { threshold: 0.4 });
+                observer.observe(formSection);
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+            if (!email) return;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправляю...';
+
+            try {
+                const response = await fetch('/api/lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                if (response.ok) {
+                    statusMsg.textContent = '✅ Отлично! Напишем, когда запустимся.';
+                    statusMsg.className = 'text-sm text-green-600 mt-4';
+                    emailInput.value = '';
+                } else {
+                    throw new Error('Lead API error');
+                }
+            } catch (error) {
+                statusMsg.textContent = '❌ Что-то пошло не так. Напиши напрямую: @analyst_exe';
+                statusMsg.className = 'text-sm text-red-600 mt-4';
+                console.error(error);
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Хочу доступ →';
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="px-6 md:px-12 py-8 border-t-2 border-black">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#FCD34D] border-2 border-black rounded-lg flex items-center justify-center font-black text-sm">
+                    С
+                </div>
+                <span class="font-bold">скринер</span>
+            </div>
+            <div class="flex gap-6 text-sm">
+                <a href="https://t.me/analyst_exe" target="_blank" class="hover:underline">Telegram-канал</a>
+                <a href="#" class="hover:underline">Политика конфиденциальности</a>
+            </div>
+            <div class="text-sm text-gray-500">
+                © 2025 скринер
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
