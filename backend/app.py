@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
+import base64
+import hashlib
+import hmac
 import json
 import os
+import secrets
+import ssl
 import threading
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
-import ssl
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
@@ -24,6 +28,11 @@ GIGACHAT_INSECURE = os.getenv("GIGACHAT_INSECURE", "1") == "1"
 STATE_PATH = os.getenv("STATE_PATH", "/var/lib/s-analystexe/state.json")
 STATS_PATH = os.getenv("STATS_PATH", "/var/lib/s-analystexe/stats.json")
 VISIT_TTL_SEC = 6 * 60 * 60
+TG_BOT_USERNAME = os.getenv("TG_BOT_USERNAME", "").lstrip("@")
+SITE_URL = os.getenv("SITE_URL", "https://s.analystexe.ru")
+SESSION_SECRET = os.getenv("SESSION_SECRET", "")
+LOGIN_TTL_SEC = int(os.getenv("LOGIN_TTL_SEC", "600"))
+SESSION_TTL_SEC = int(os.getenv("SESSION_TTL_SEC", "86400"))
 
 
 def _load_json(path: str, default: dict) -> dict:
@@ -41,6 +50,72 @@ def _save_json(path: str, data: dict) -> None:
     os.replace(tmp, path)
 
 
+def _load_state() -> dict:
+    state = _load_json(STATE_PATH, {"last_seen": {}, "offset": 0})
+    login = state.setdefault("login", {})
+    login.setdefault("states", {})
+    return state
+
+
+def _cleanup_login_states(state: dict) -> None:
+    now = int(time.time())
+    states = state.setdefault("login", {}).setdefault("states", {})
+    for key in list(states.keys()):
+        exp = int(states.get(key, {}).get("exp", 0))
+        if exp and exp < now:
+            states.pop(key, None)
+
+
+def _b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).decode("ascii").rstrip("=")
+
+
+def _unb64url(data: str) -> bytes:
+    padding = "=" * (-len(data) % 4)
+    return base64.urlsafe_b64decode(data + padding)
+
+
+def _sign(value: str) -> str:
+    return hmac.new(
+        SESSION_SECRET.encode("utf-8"),
+        value.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def _make_session(user: dict) -> str:
+    if not SESSION_SECRET:
+        raise RuntimeError("missing_session_secret")
+    payload = {
+        "id": user.get("id"),
+        "username": user.get("username") or "",
+        "first_name": user.get("first_name") or "",
+        "last_name": user.get("last_name") or "",
+        "exp": int(time.time()) + SESSION_TTL_SEC,
+    }
+    body = _b64url(json.dumps(payload, separators=(",", ":")).encode("utf-8"))
+    sig = _sign(body)
+    return f"{body}.{sig}"
+
+
+def _verify_session(token: str):
+    if not token or not SESSION_SECRET:
+        return None
+    try:
+        body, sig = token.split(".", 1)
+    except ValueError:
+        return None
+    if not hmac.compare_digest(_sign(body), sig):
+        return None
+    try:
+        payload = json.loads(_unb64url(body).decode("utf-8"))
+    except Exception:
+        return None
+    if int(payload.get("exp", 0)) < int(time.time()):
+        return None
+    return payload
+
+
 def _urlopen(req: urllib.request.Request, timeout: int = 20):
     if GIGACHAT_INSECURE:
         ctx = ssl._create_unverified_context()
@@ -48,11 +123,11 @@ def _urlopen(req: urllib.request.Request, timeout: int = 20):
     return urllib.request.urlopen(req, timeout=timeout)
 
 
-def send_telegram(text: str) -> bool:
-    if not BOT_TOKEN or not CHAT_ID:
+def send_telegram_to(chat_id: str, text: str) -> bool:
+    if not BOT_TOKEN or not chat_id:
         return False
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = json.dumps({"chat_id": CHAT_ID, "text": text}).encode("utf-8")
+    payload = json.dumps({"chat_id": chat_id, "text": text}).encode("utf-8")
     req = urllib.request.Request(
         url,
         data=payload,
@@ -64,6 +139,12 @@ def send_telegram(text: str) -> bool:
             return 200 <= resp.status < 300
     except Exception:
         return False
+
+
+def send_telegram(text: str) -> bool:
+    if not CHAT_ID:
+        return False
+    return send_telegram_to(CHAT_ID, text)
 
 
 def _get_gigachat_token() -> str:
@@ -249,11 +330,11 @@ def format_stats(stats: dict) -> str:
 
 
 def poll_telegram() -> None:
-    if not BOT_TOKEN or not CHAT_ID:
+    if not BOT_TOKEN:
         return
     while True:
         try:
-            state = _load_json(STATE_PATH, {"last_seen": {}, "offset": 0})
+            state = _load_state()
             offset = int(state.get("offset", 0))
             url = f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates?offset={offset}&timeout=0"
             with urllib.request.urlopen(url, timeout=10) as resp:
@@ -262,9 +343,28 @@ def poll_telegram() -> None:
                 for item in data.get("result", []):
                     update_id = int(item.get("update_id", 0))
                     msg = item.get("message", {})
-                    text = (msg.get("text") or "").strip().lower()
+                    text_raw = (msg.get("text") or "").strip()
+                    text = text_raw.lower()
                     chat_id = str(msg.get("chat", {}).get("id", ""))
-                    if chat_id == str(CHAT_ID) and text in {"/stats", "stats", "стата", "/стата"}:
+                    if text.startswith("/start"):
+                        parts = text_raw.split(maxsplit=1)
+                        payload = parts[1] if len(parts) > 1 else ""
+                        if payload:
+                            _cleanup_login_states(state)
+                            entry = state.setdefault("login", {}).setdefault("states", {}).get(payload)
+                            if entry and int(entry.get("exp", 0)) >= int(time.time()):
+                                user = msg.get("from") or msg.get("chat") or {}
+                                entry["status"] = "approved"
+                                entry["approved_at"] = int(time.time())
+                                entry["user"] = {
+                                    "id": user.get("id"),
+                                    "username": user.get("username") or "",
+                                    "first_name": user.get("first_name") or "",
+                                    "last_name": user.get("last_name") or "",
+                                }
+                                _save_json(STATE_PATH, state)
+                                send_telegram_to(chat_id, f"? ??????! ????????? ?? ????: {SITE_URL}")
+                    if CHAT_ID and chat_id == str(CHAT_ID) and text in {"/stats", "stats", "?????", "/?????"}:
                         send_telegram(format_stats(get_stats()))
                     state["offset"] = update_id + 1
                 _save_json(STATE_PATH, state)
@@ -274,7 +374,7 @@ def poll_telegram() -> None:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "screener-bot/1.5"
+    server_version = "screener-bot/1.6"
 
     def _send_json(self, status: int, payload: dict) -> None:
         body = json.dumps(payload).encode("utf-8")
@@ -303,8 +403,89 @@ class Handler(BaseHTTPRequestHandler):
         ref = self.headers.get("Referer", "-")
         return ip, ua, ref
 
+    def _parse_path(self):
+        parsed = urllib.parse.urlparse(self.path)
+        return parsed.path, urllib.parse.parse_qs(parsed.query)
+
+    def _get_auth_token(self) -> str:
+        auth = self.headers.get("Authorization", "")
+        if auth.lower().startswith("bearer "):
+            return auth.split(" ", 1)[1].strip()
+        cookie = self.headers.get("Cookie", "")
+        for part in cookie.split(";"):
+            name, _, value = part.strip().partition("=")
+            if name == "screener_session":
+                return value
+        return ""
+
+    def do_GET(self):
+        path, query = self._parse_path()
+
+        if path == "/api/tg/login/status":
+            state_id = (query.get("state") or [""])[0]
+            if not state_id:
+                self._send_json(400, {"ok": False, "error": "state_required"})
+                return
+            state = _load_state()
+            _cleanup_login_states(state)
+            states = state.setdefault("login", {}).setdefault("states", {})
+            entry = states.get(state_id)
+            if not entry:
+                self._send_json(404, {"ok": False, "error": "state_not_found"})
+                return
+            if entry.get("status") != "approved":
+                self._send_json(200, {"ok": False, "status": "pending"})
+                return
+            try:
+                token = _make_session(entry.get("user") or {})
+            except RuntimeError as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+                return
+            user = entry.get("user") or {}
+            states.pop(state_id, None)
+            _save_json(STATE_PATH, state)
+            self._send_json(200, {"ok": True, "token": token, "user": user})
+            return
+
+        if path == "/api/me":
+            token = self._get_auth_token()
+            user = _verify_session(token)
+            if not user:
+                self._send_json(401, {"ok": False, "error": "unauthorized"})
+                return
+            self._send_json(200, {"ok": True, "user": user})
+            return
+
+        self._send_json(404, {"ok": False, "error": "not_found"})
+
     def do_POST(self):
-        if self.path == "/api/event":
+        path, _ = self._parse_path()
+
+        if path == "/api/tg/login/start":
+            if not BOT_TOKEN:
+                self._send_json(500, {"ok": False, "error": "missing_bot_token"})
+                return
+            if not TG_BOT_USERNAME:
+                self._send_json(500, {"ok": False, "error": "missing_bot_username"})
+                return
+            if not SESSION_SECRET:
+                self._send_json(500, {"ok": False, "error": "missing_session_secret"})
+                return
+            state = _load_state()
+            _cleanup_login_states(state)
+            states = state.setdefault("login", {}).setdefault("states", {})
+            token = secrets.token_urlsafe(16)
+            states[token] = {"status": "pending", "exp": int(time.time()) + LOGIN_TTL_SEC}
+            _save_json(STATE_PATH, state)
+            self._send_json(200, {
+                "ok": True,
+                "state": token,
+                "expires_in": LOGIN_TTL_SEC,
+                "tg_url": f"https://t.me/{TG_BOT_USERNAME}?start={token}",
+            })
+            return
+
+        if path == "/api/event":
             data = self._read_json()
             event = str(data.get("event", "")).strip()
             ip, ua, _ = self._client_meta()
@@ -319,7 +500,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"ok": True})
             return
 
-        if self.path == "/api/lead":
+        if path == "/api/lead":
             data = self._read_json()
             email = str(data.get("email", "")).strip()
             if not email:
@@ -331,7 +512,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"ok": ok})
             return
 
-        if self.path == "/api/analyze":
+        if path == "/api/analyze":
             data = self._read_json()
             vacancy = str(data.get("vacancy", "")).strip()
             resume = str(data.get("resume", "")).strip()

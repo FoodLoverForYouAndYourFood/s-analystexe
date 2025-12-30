@@ -27,7 +27,7 @@
             </div>
             <span class="font-bold text-xl">скринер</span>
         </div>
-        <a href="#signup" class="bg-white border-2 border-black rounded-xl px-4 py-2 font-semibold shadow-brutal-sm hover-press-sm transition-all cursor-pointer">
+        <a id="login-button" data-login-open href="#login" class="bg-white border-2 border-black rounded-xl px-4 py-2 font-semibold shadow-brutal-sm hover-press-sm transition-all cursor-pointer">
             Войти
         </a>
     </nav>
@@ -290,6 +290,23 @@
         </div>
     </section>
 
+    <div id="login-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40"></div>
+        <div class="relative w-full max-w-md bg-[#FFFEF9] border-2 border-black rounded-2xl p-6 shadow-brutal-lg">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-black">????</h3>
+                <button id="login-close" class="w-9 h-9 rounded-full border-2 border-black bg-white font-black shadow-brutal-sm hover-press-sm transition-all" aria-label="???????">
+                    ?
+                </button>
+            </div>
+            <p class="text-gray-600 mb-4">????? ????? ????? Telegram ? ?????? ? ??? ???????.</p>
+            <button id="tg-login-btn" class="w-full bg-black text-white border-2 border-black rounded-xl px-6 py-3 font-bold shadow-brutal-sm hover-press-sm transition-all">
+                ????? ????? Telegram
+            </button>
+            <div id="login-status" class="text-sm text-gray-700 mt-3"></div>
+        </div>
+    </div>
+
     <script>
         const form = document.getElementById('signup-form');
         const emailInput = document.getElementById('email-input');
@@ -358,6 +375,132 @@
             submitBtn.disabled = false;
             submitBtn.textContent = 'Хочу доступ →';
         });
+    </script>
+
+    <script>
+        (() => {
+            const modal = document.getElementById('login-modal');
+            const openBtns = document.querySelectorAll('[data-login-open]');
+            const closeBtn = document.getElementById('login-close');
+            const tgBtn = document.getElementById('tg-login-btn');
+            const statusEl = document.getElementById('login-status');
+            const loginButton = document.getElementById('login-button');
+
+            if (!modal || !tgBtn || !statusEl) return;
+
+            const setStatus = (text, isError = false) => {
+                statusEl.textContent = text;
+                statusEl.className = `text-sm mt-3 ${isError ? "text-red-600" : "text-gray-700"}`;
+            };
+
+            const openModal = () => {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setStatus('');
+            };
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+
+            openBtns.forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openModal();
+                });
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
+            }
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            const updateLoginUi = (user) => {
+                if (!loginButton || !user) return;
+                if (user.username) {
+                    loginButton.textContent = `@${user.username}`;
+                } else if (user.first_name) {
+                    loginButton.textContent = user.first_name;
+                } else {
+                    loginButton.textContent = '?? ?????';
+                }
+            };
+
+            const checkSession = async () => {
+                const token = localStorage.getItem('screener_token');
+                if (!token) return;
+                try {
+                    const res = await fetch('/api/me', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (!res.ok) {
+                        localStorage.removeItem('screener_token');
+                        return;
+                    }
+                    const data = await res.json();
+                    if (data.ok) {
+                        updateLoginUi(data.user);
+                    }
+                } catch (_) {
+                    localStorage.removeItem('screener_token');
+                }
+            };
+
+            const pollStatus = async (stateId, deadline) => {
+                if (Date.now() > deadline) {
+                    setStatus('????? ???????? ???????. ???????? ??? ???.', true);
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/api/tg/login/status?state=${encodeURIComponent(stateId)}`);
+                    const data = await res.json();
+                    if (data.ok && data.token) {
+                        localStorage.setItem('screener_token', data.token);
+                        updateLoginUi(data.user);
+                        setStatus('??????! ????? ????????? ????.', false);
+                        setTimeout(closeModal, 1000);
+                        return;
+                    }
+                    if (data.status === 'pending') {
+                        setStatus('???? ????????????? ? Telegram...', false);
+                        setTimeout(() => pollStatus(stateId, deadline), 2000);
+                        return;
+                    }
+                } catch (_) {
+                    setStatus('?????? ??????????. ???????? ??? ???.', true);
+                    return;
+                }
+
+                setStatus('?? ??????? ?????. ???????? ??? ???.', true);
+            };
+
+            const startLogin = async () => {
+                setStatus('????????? Telegram...', false);
+                try {
+                    const res = await fetch('/api/tg/login/start', { method: 'POST' });
+                    const data = await res.json();
+                    if (!data.ok) {
+                        setStatus('?? ??????? ?????? ????. ???????? ?????.', true);
+                        return;
+                    }
+                    window.open(data.tg_url, '_blank', 'noopener');
+                    const ttl = Number(data.expires_in || 600) * 1000;
+                    pollStatus(data.state, Date.now() + ttl);
+                } catch (_) {
+                    setStatus('?????? ??????????. ???????? ??? ???.', true);
+                }
+            };
+
+            tgBtn.addEventListener('click', startLogin);
+            checkSession();
+        })();
     </script>
 
     <!-- Footer -->
