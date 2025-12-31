@@ -363,8 +363,12 @@ def poll_telegram() -> None:
                                     "last_name": user.get("last_name") or "",
                                 }
                                 _save_json(STATE_PATH, state)
-                                send_telegram_to(chat_id, f"? ??????! ????????? ?? ????: {SITE_URL}")
-                    if CHAT_ID and chat_id == str(CHAT_ID) and text in {"/stats", "stats", "?????", "/?????"}:
+                                send_telegram_to(chat_id, f"✅ Готово! Вернитесь на сайт: {SITE_URL}")
+                            else:
+                                send_telegram_to(chat_id, "Ссылка устарела. Вернитесь на сайт и нажмите «Войти через Telegram» ещё раз.")
+                        else:
+                            send_telegram_to(chat_id, "Для входа вернитесь на сайт и нажмите «Войти через Telegram».")
+                    if CHAT_ID and chat_id == str(CHAT_ID) and text in {"/stats", "stats", "стата", "/стата"}:
                         send_telegram(format_stats(get_stats()))
                     state["offset"] = update_id + 1
                 _save_json(STATE_PATH, state)
