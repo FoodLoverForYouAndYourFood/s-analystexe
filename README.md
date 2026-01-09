@@ -1,62 +1,43 @@
-﻿# Матчер резюме (ветка d-analyst)
+﻿# Матчер резюме — коммерческий продукт (ветка d-analyst)
 
-Ветка d-analyst используется для поддомена d.analystexe.ru и не участвует в автодеплое основного сайта.
+Матчер резюме помогает быстро понять, насколько вакансия подходит под ваше резюме, и что именно нужно поправить, чтобы увеличить шанс на отклик. Это сервис для тех, кто хочет принимать решения по вакансиям быстро и уверенно.
 
-## Что делает
+## Возможности и преимущества
 
-- LLM вытаскивает структуру из вакансии и резюме.
-- Алгоритм считает скоринг (0-100, затем 1-10).
-- LLM объясняет результат и дает рекомендации, не пересчитывая оценку.
+- Быстрое сравнение вакансии и резюме за 1–2 минуты.
+- Понятная оценка совпадения и объяснение, за счет чего она получилась.
+- Выделение пробелов и слабых зон — что именно подтянуть.
+- Рекомендации по следующему шагу: откликаться, подумать или не тратить время.
+- Веб‑интерфейс и расширение для браузера.
+
+## Как это работает (простыми словами)
+
+1. Вы вставляете текст вакансии и резюме.
+2. Система выделяет ключевые требования, опыт и навыки.
+3. Алгоритм рассчитывает совпадение.
+4. ИИ объясняет результат и предлагает улучшения.
+
+## Для кого
+
+- Аналитики и специалисты, которые подают много откликов.
+- Кандидаты, которые хотят видеть свои пробелы до собеседования.
+- Те, кто хочет принимать решения по вакансиям быстро и осознанно.
+
+---
+
+# Техническая часть
 
 ## Компоненты
 
-- frontend/ - веб-страница матчера в стиле s.analystexe.ru.
-- server/ - Flask API с GigaChat и алгоритмом скоринга.
-- extension-chrome/ - Chrome-расширение для быстрого анализа.
-- deploy/ - шаблон Nginx-конфига под d.analystexe.ru.
-- mockups/ - дизайн-макеты.
-
-## Быстрый старт (локально)
-
-### Сервер
-
-```bash
-cd server
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-Создай .env:
-```bash
-cp .env.example .env
-# Добавь:
-# GIGACHAT_AUTH_KEY=...
-# MATCHER_API_KEY=...
-```
-
-Запуск:
-```bash
-python app.py
-```
-
-Сервер доступен на http://localhost:5000.
-
-### Веб-страница
-
-Открой frontend/index.html через локальный сервер или статику.
-API ожидается на /api/ (через прокси или локально).
-
-### Расширение
-
-1. Открой chrome://extensions/.
-2. Включи Developer mode.
-3. Load unpacked -> extension-chrome.
-4. В профиле укажи MATCHER_API_KEY и вставь резюме.
+- `frontend/` — веб‑страница матчера в стиле `s.analystexe.ru`.
+- `server/` — Flask API с GigaChat и алгоритмом скоринга.
+- `extension-chrome/` — Chrome‑расширение для быстрого анализа.
+- `deploy/` — шаблон Nginx‑конфига под `d.analystexe.ru`.
+- `mockups/` — дизайн‑макеты.
 
 ## API
 
-POST /api/analyze
+POST `/api/analyze`
 
 Headers:
 ```
@@ -93,17 +74,54 @@ Response (ключевые поля):
 }
 ```
 
-## Деплой (d.analystexe.ru)
+## Развертывание (d.analystexe.ru)
 
-- Веб: /srv/d-analystexe/frontend/index.html
-- API: /srv/d-analystexe/server/app.py (gunicorn + systemd)
-- Env: /etc/matcher-main.env
-- Nginx: /etc/nginx/sites-available/d.analystexe.ru.conf
+- Веб: `/srv/d-analystexe/frontend/index.html`
+- API: `/srv/d-analystexe/server/app.py` (gunicorn + systemd)
+- Env: `/etc/matcher-main.env`
+- Nginx: `/etc/nginx/sites-available/d.analystexe.ru.conf`
 - SSL: certbot
 
-В Nginx подставляется X-API-Key, чтобы веб работал без ручного ввода ключа.
+В Nginx подставляется `X-API-Key`, чтобы веб работал без ручного ввода ключа.
 
-## Примечания
+## Быстрый старт (локально)
 
-- Ветка d-analyst не затрагивает автодеплой main.
-- В проде веб использует прокси /api/ на тот же домен.
+### Сервер
+
+```bash
+cd server
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Создай `.env`:
+```bash
+cp .env.example .env
+# Добавь:
+# GIGACHAT_AUTH_KEY=...
+# MATCHER_API_KEY=...
+```
+
+Запуск:
+```bash
+python app.py
+```
+
+Сервер доступен на `http://localhost:5000`.
+
+### Веб‑страница
+
+Открой `frontend/index.html` через локальный сервер или статику.
+API ожидается на `/api/` (через прокси или локально).
+
+### Расширение
+
+1. Открой `chrome://extensions/`.
+2. Включи Developer mode.
+3. Load unpacked → `extension-chrome`.
+4. В профиле укажи `MATCHER_API_KEY` и вставь резюме.
+
+---
+
+Ветка `d-analyst` не участвует в автодеплое основного сайта.
