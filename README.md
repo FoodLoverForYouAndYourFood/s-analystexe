@@ -1,79 +1,24 @@
-# Job Matcher
+﻿# Матчер резюме (ветка d-analyst)
 
-AI-powered browser extension that helps job seekers analyze vacancies and match them against their resume in real-time.
+Ветка d-analyst используется для поддомена d.analystexe.ru и не участвует в автодеплое основного сайта.
 
-## Overview
+## Что делает
 
-Job Matcher is a smart assistant for job searching that analyzes job postings directly in your browser and provides instant feedback on how well they match your profile. It helps you:
+- LLM вытаскивает структуру из вакансии и резюме.
+- Алгоритм считает скоринг (0-100, затем 1-10).
+- LLM объясняет результат и дает рекомендации, не пересчитывая оценку.
 
-- **Save time** by quickly evaluating vacancies (5 min → 1 min per vacancy)
-- **Improve match quality** by showing objective compatibility scores
-- **Get personalized advice** on how to tailor your resume for each position
-- **Avoid red flags** by checking company culture and work conditions
+## Компоненты
 
-## Features
+- frontend/ - веб-страница матчера в стиле s.analystexe.ru.
+- server/ - Flask API с GigaChat и алгоритмом скоринга.
+- extension-chrome/ - Chrome-расширение для быстрого анализа.
+- deploy/ - шаблон Nginx-конфига под d.analystexe.ru.
+- mockups/ - дизайн-макеты.
 
-### Current Features
+## Быстрый старт (локально)
 
-- **Instant Vacancy Analysis**
-  - One-click parsing from hh.ru, LinkedIn, and Habr Career
-  - AI-powered matching against your resume
-  - Compatibility score (1-10)
-  - Skills gap analysis
-
-- **Smart Profile Management**
-  - Resume upload and storage (text format)
-  - Salary expectations and work format preferences
-  - Custom red flags and must-have requirements
-  - Personalized matching criteria
-
-- **Comprehensive Insights**
-  - Company information (size, reputation, industry)
-  - Career prospects analysis
-  - Market salary comparison
-  - Risks and opportunities assessment
-  - Actionable quick wins for your resume
-
-- **Multi-Platform Support**
-  - Chrome extension (Manifest V3)
-  - Supported job boards: hh.ru, LinkedIn, Habr Career
-
-### Planned Features
-
-- [ ] Firefox support
-- [ ] PDF/DOCX resume upload
-- [ ] Vacancy history and tracking
-- [ ] On-page analysis button
-- [ ] Cover letter generation
-- [ ] Alternative LLM support (OpenAI, Claude)
-
-## Project Structure
-
-```
-matcher/
-├── extension-chrome/       # Chrome browser extension
-│   ├── manifest.json       # Extension manifest (V3)
-│   ├── popup.html/js       # Extension UI
-│   ├── content.js          # Page content parser
-│   └── background.js       # Service worker
-│
-├── job-matcher-extension/  # Legacy extension version
-│
-├── server/                 # Flask API server
-│   ├── app.py              # Main server application
-│   ├── requirements.txt    # Python dependencies
-│   └── .env.example        # Environment variables template
-│
-├── mockups/                # UI/UX mockups
-│
-├── product-analysis.md     # Product strategy and analysis
-├── requirements-and-roadmap.md  # Development roadmap
-└── custdev-analysis.md     # Customer development insights
-```
-
-## Quick Start
-
-### 1. Setup the Server
+### Сервер
 
 ```bash
 cd server
@@ -82,160 +27,83 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create `.env` file with your GigaChat API key and server API key:
+Создай .env:
 ```bash
 cp .env.example .env
-nano .env  # Add your GIGACHAT_AUTH_KEY and MATCHER_API_KEY
+# Добавь:
+# GIGACHAT_AUTH_KEY=...
+# MATCHER_API_KEY=...
 ```
 
-Get GigaChat API key at [developers.sber.ru/studio](https://developers.sber.ru/studio/)
-
-Start the server:
+Запуск:
 ```bash
 python app.py
 ```
 
-Server will run on `http://localhost:5000`
+Сервер доступен на http://localhost:5000.
 
-### 2. Install Browser Extension
+### Веб-страница
 
-**Chrome:**
-1. Open `chrome://extensions/`
-2. Enable "Developer mode" (top right)
-3. Click "Load unpacked"
-4. Select the `extension-chrome` folder
-5. Extension icon will appear in the toolbar
+Открой frontend/index.html через локальный сервер или статику.
+API ожидается на /api/ (через прокси или локально).
 
-**Firefox:** (coming soon)
+### Расширение
 
-### 3. Configure Your Profile
+1. Открой chrome://extensions/.
+2. Включи Developer mode.
+3. Load unpacked -> extension-chrome.
+4. В профиле укажи MATCHER_API_KEY и вставь резюме.
 
-1. Click the extension icon
-2. Go to **Profile** tab
-3. Paste `MATCHER_API_KEY` from the server `.env`
-4. Paste your resume text (copy from PDF/DOCX/web)
-5. Set salary expectations, work format preferences
-6. Add custom red flags and must-have requirements
-7. Save profile
+## API
 
-### 4. Analyze Vacancies
+POST /api/analyze
 
-1. Open a job posting on hh.ru, LinkedIn, or Habr Career
-2. Click the extension icon
-3. Click **"Get from page"** to auto-parse, or paste text manually
-4. Click **"Check match"**
-5. Review detailed analysis and recommendations
-
-## Tech Stack
-
-**Extension:**
-- Vanilla JavaScript (no frameworks)
-- Chrome Extensions API (Manifest V3)
-- Chrome Storage API for local data
-
-**Server:**
-- Python 3.8+
-- Flask (REST API)
-- GigaChat API (AI analysis)
-- Requests library with SSL certificate handling
-
-**AI:**
-- GigaChat (Sber AI)
-- Structured JSON output parsing
-- Custom prompts for vacancy analysis
-
-## Architecture
-
+Headers:
 ```
-┌─────────────────┐
-│  Browser        │
-│  Extension      │──┐
-│  (popup.js)     │  │
-└─────────────────┘  │
-                     │ HTTP POST /api/analyze
-                     ▼
-              ┌─────────────┐
-              │   Flask     │
-              │   Server    │──┐
-              │  (app.py)   │  │
-              └─────────────┘  │
-                               │ GigaChat API
-                               ▼
-                        ┌─────────────┐
-                        │  GigaChat   │
-                        │  AI Model   │
-                        └─────────────┘
+Authorization: Bearer <MATCHER_API_KEY>
 ```
 
-## Development Status
+Request:
+```json
+{
+  "vacancy_text": "текст вакансии",
+  "profile": {
+    "resume_text": "текст резюме",
+    "salary_min": "200000",
+    "work_format": ["remote"],
+    "red_flags": ["переработки"],
+    "must_have": ["ДМС"]
+  }
+}
+```
 
-**MVP Status:** ~90% complete
+Response (ключевые поля):
+```json
+{
+  "score": 7,
+  "score_raw": 73,
+  "verdict": "краткий вывод",
+  "matches": [
+    { "item": "Hard skills", "status": "match", "comment": "..." }
+  ],
+  "company": { "name": "...", "info": "..." },
+  "details": { "career": "...", "stack": "...", "team": "..." },
+  "pros_cons": { "pros": ["..."], "cons": ["..."] },
+  "recommendation": { "decision": "...", "actions": ["..."] }
+}
+```
 
-- [x] Core matching functionality
-- [x] Browser extension (Chrome)
-- [x] Local API server
-- [x] Company and culture analysis
-- [x] Skills gap detection
-- [ ] History and tracking
-- [ ] Firefox support
-- [ ] PDF/DOCX upload
+## Деплой (d.analystexe.ru)
 
-See [requirements-and-roadmap.md](requirements-and-roadmap.md) for detailed roadmap.
+- Веб: /srv/d-analystexe/frontend/index.html
+- API: /srv/d-analystexe/server/app.py (gunicorn + systemd)
+- Env: /etc/matcher-main.env
+- Nginx: /etc/nginx/sites-available/d.analystexe.ru.conf
+- SSL: certbot
 
-## Product Vision
+В Nginx подставляется X-API-Key, чтобы веб работал без ручного ввода ключа.
 
-Job Matcher aims to be **"an instant AI assistant right on the job posting page that knows your resume and preferences."**
+## Примечания
 
-### Key Differentiators
-
-1. Works directly in browser (no copy-pasting)
-2. Analyzes both company AND resume match
-3. Remembers history of all checked vacancies
-4. Personalized resume improvement advice for each position
-
-### Target Audience
-
-- **Active job seekers** in IT, marketing, design, product roles
-- Age 25-40, searching for 1-3 months
-- Reviewing 10-30 vacancies per day
-- Willing to pay for job search tools
-
-See [product-analysis.md](product-analysis.md) for full market analysis.
-
-## Contributing
-
-This is a private project. If you have access and want to contribute:
-
-1. Create a feature branch
-2. Make your changes
-3. Test thoroughly in both Chrome and (when ready) Firefox
-4. Submit a pull request
-
-## Troubleshooting
-
-**"Server error" in extension:**
-- Check server is running: `curl http://localhost:5000/health`
-- Verify GigaChat API key in `.env`
-- Check server logs in `matcher.log`
-
-**"Get from page" not working:**
-- Ensure you're on a supported site (hh.ru, LinkedIn, Habr)
-- Try copying text manually instead
-- Check browser console for errors
-
-**AI analysis fails:**
-- Verify GigaChat API key is valid
-- Check API quota hasn't been exceeded
-- Try with shorter vacancy text
-
-## License
-
-Private project. All rights reserved.
-
-## Support
-
-For issues and questions, check the GitHub Issues tab.
-
----
-
-Built with Claude Code
+- Ветка d-analyst не затрагивает автодеплой main.
+- В проде веб использует прокси /api/ на тот же домен.
