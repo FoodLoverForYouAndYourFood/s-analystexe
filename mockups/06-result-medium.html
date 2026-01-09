@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер - Результат (средне)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      width: 380px;
+      background: #FFFEF9;
+      color: #000;
+      padding: 16px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      position: sticky;
+      top: 0;
+      background: #FFFEF9;
+      padding-bottom: 8px;
+      z-index: 10;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 18px;
+      flex: 1;
+    }
+
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .score-card {
+      background: #fef3c7;
+      border: 3px solid #ca8a04;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .score-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .score-number {
+      font-size: 36px;
+      font-weight: 900;
+      color: #ca8a04;
+    }
+
+    .score-verdict {
+      flex: 1;
+    }
+
+    .score-verdict-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #854d0e;
+    }
+
+    .score-verdict-text {
+      font-size: 13px;
+      color: #854d0e;
+    }
+
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card {
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .company-info {
+      margin-bottom: 16px;
+    }
+
+    .company-header {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .company-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #f9f9f9;
+    }
+
+    .tag.green { background: #dcfce7; border-color: #16a34a; color: #166534; }
+    .tag.yellow { background: #fef3c7; border-color: #ca8a04; color: #854d0e; }
+    .tag.blue { background: #dbeafe; border-color: #2563eb; color: #1e40af; }
+
+    .company-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .match-compact {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 12px;
+    }
+
+    .match-compact:last-child {
+      border-bottom: none;
+    }
+
+    .match-compact-icon {
+      font-size: 16px;
+    }
+
+    .match-compact-text {
+      flex: 1;
+    }
+
+    .match-compact-label {
+      font-weight: 600;
+    }
+
+    .list-item {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .list-item-icon {
+      flex-shrink: 0;
+    }
+
+    .market-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .market-cell {
+      padding: 8px;
+      background: #f9f9f9;
+      border: 2px solid #000;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .market-cell-label {
+      font-size: 10px;
+      color: #666;
+      margin-bottom: 2px;
+    }
+
+    .market-cell-value {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .market-cell.good { background: #dcfce7; }
+    .market-cell.yellow { background: #fef3c7; }
+    .market-cell.bad { background: #fee2e2; }
+
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .pros-cons-col {
+      padding: 10px;
+      border: 2px solid #000;
+      border-radius: 8px;
+    }
+
+    .pros-col {
+      background: #dcfce7;
+    }
+
+    .cons-col {
+      background: #fee2e2;
+    }
+
+    .pros-cons-title {
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .decision-card {
+      background: #FCD34D;
+      border: 3px solid #000;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .decision-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .decision-text {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .action-item {
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 6px;
+      align-items: flex-start;
+    }
+
+    .action-num {
+      background: #000;
+      color: #fff;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 3px 3px 0 #000;
+      background: #fff;
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">М</div>
+    <div class="title">матчер</div>
+    <div class="back-btn">✕</div>
+  </div>
+
+  <div class="score-card">
+    <div class="score-header">
+      <div class="score-number">6/10</div>
+      <div class="score-verdict">
+        <div class="score-verdict-title">Среднее совпадение 🤔</div>
+        <div class="score-verdict-text">Есть gaps, но можно рассмотреть</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- О компании -->
+  <div class="section">
+    <div class="section-title">🏢 О компании</div>
+    <div class="card company-info">
+      <div class="company-header">TechStartup • Fintech</div>
+      <div class="company-tags">
+        <div class="tag blue">Medium (~150)</div>
+        <div class="tag green">Product</div>
+        <div class="tag yellow">Growth</div>
+      </div>
+      <div class="company-desc">
+        Быстрорастущий стартап в финтехе. Агрессивный рост, динамичная среда. Зарплаты средние по рынку, но есть опционы. Много изменений и хаоса — не для всех.
+      </div>
+    </div>
+  </div>
+
+  <!-- Совпадение с требованиями (компактно) -->
+  <div class="section">
+    <div class="section-title">⚖️ Совпадение с требованиями</div>
+    <div class="card">
+      <div class="match-compact">
+        <div class="match-compact-icon">🟡</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Навыки:</span> React есть, но требуется Vue.js
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">✅</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Формат:</span> Гибрид (2-3 дня офис)
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">❌</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Зарплата:</span> До 180k — ниже твоей минималки
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">🟡</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Опыт:</span> Требуют 5+ лет, у тебя 3 года
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Карьерные перспективы -->
+  <div class="section">
+    <div class="section-title">📈 Карьерные перспективы</div>
+    <div class="card">
+      <div class="list-item">
+        <div class="list-item-icon">🚀</div>
+        <div><strong>Рост:</strong> Быстрый при успехе компании, рискованный при неудаче</div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon">💡</div>
+        <div><strong>Новые навыки:</strong> Vue.js, blockchain, финтех специфика</div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon">👥</div>
+        <div><strong>Команда:</strong> 8 человек, молодая команда, быстрые итерации</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Рыночный анализ -->
+  <div class="section">
+    <div class="section-title">💰 Рыночный анализ</div>
+    <div class="card">
+      <div class="market-grid">
+        <div class="market-cell bad">
+          <div class="market-cell-label">Зарплата vs рынок</div>
+          <div class="market-cell-value">-10%</div>
+        </div>
+        <div class="market-cell yellow">
+          <div class="market-cell-label">Востребованность стека</div>
+          <div class="market-cell-value">Средняя</div>
+        </div>
+      </div>
+      <div class="company-desc">
+        Vue.js менее востребован чем React. Зарплата на 10% ниже рынка для Middle Frontend, но есть опционы которые могут вырасти в цене (риск).
+      </div>
+    </div>
+  </div>
+
+  <!-- Риски и возможности -->
+  <div class="section">
+    <div class="section-title">⚖️ Риски и возможности</div>
+    <div class="pros-cons">
+      <div class="pros-cons-col pros-col">
+        <div class="pros-cons-title">✅ Плюсы</div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Опционы могут выстрелить</div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Много ответственности</div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Новые технологии</div>
+        </div>
+      </div>
+      <div class="pros-cons-col cons-col">
+        <div class="pros-cons-title">⚠️ Риски</div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Низкая зарплата сейчас</div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Стартап может не взлететь</div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Много хаоса и неопределённости</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Рекомендация -->
+  <div class="decision-card">
+    <div class="decision-title">💡 Рекомендация</div>
+    <div class="decision-text">
+      <strong>Подумай внимательно.</strong> Есть серьёзные gaps (зарплата, опыт, технологии). Подходит если готов рискнуть ради опционов и роста в стартапе.
+    </div>
+    <div class="action-item">
+      <span class="action-num">1</span>
+      <span>Договорись о зарплате min 200k на собеседовании</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">2</span>
+      <span>Если знаешь Vue.js — подчеркни, если нет — скажи что готов изучить за 2 недели</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">3</span>
+      <span>Спроси про vest schedule опционов и runway компании (сколько денег осталось)</span>
+    </div>
+  </div>
+
+  <button class="btn">← Проверить другую</button>
+</body>
+</html>

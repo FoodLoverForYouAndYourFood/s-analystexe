@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер - Настройки профиля</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      width: 380px;
+      background: #FFFEF9;
+      color: #000;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .step-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .step {
+      width: 40px;
+      height: 4px;
+      background: #e5e5e5;
+      border-radius: 2px;
+    }
+
+    .step.active {
+      background: #FCD34D;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      background: #fff;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px #FCD34D;
+    }
+
+    textarea {
+      width: 100%;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      margin-bottom: 6px;
+      resize: none;
+      background: #fff;
+      font-family: inherit;
+    }
+
+    textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px #FCD34D;
+    }
+
+    .helper {
+      font-size: 11px;
+      color: #666;
+      margin-top: -4px;
+      margin-bottom: 16px;
+    }
+
+    .checkbox-group {
+      margin-bottom: 16px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      margin-bottom: 6px;
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .checkbox-item:hover {
+      background: #f9f9f9;
+    }
+
+    .checkbox-item.checked {
+      background: #FCD34D;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      flex: 1;
+      cursor: pointer;
+      font-weight: 400;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .btn-primary {
+      background: #FCD34D;
+      margin-bottom: 10px;
+    }
+
+    .btn-secondary {
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">М</div>
+    <div class="title">матчер</div>
+  </div>
+
+  <div class="step-indicator">
+    <div class="step active"></div>
+    <div class="step active"></div>
+    <div class="step"></div>
+  </div>
+
+  <h2>Шаг 2: Твои хотелки</h2>
+  <div class="description">
+    Матчер будет проверять вакансии на соответствие этим критериям
+  </div>
+
+  <label>Желаемая зарплата (от)</label>
+  <input type="text" placeholder="например: 200000" value="">
+  <div class="helper">Опционально. Матчер проверит есть ли зарплата в вакансии.</div>
+
+  <label>Формат работы</label>
+  <div class="checkbox-group">
+    <div class="checkbox-item">
+      <input type="checkbox" id="remote">
+      <label for="remote">🏠 Удалёнка</label>
+    </div>
+    <div class="checkbox-item checked">
+      <input type="checkbox" id="hybrid" checked>
+      <label for="hybrid">🔀 Гибрид</label>
+    </div>
+    <div class="checkbox-item">
+      <input type="checkbox" id="office">
+      <label for="office">🏢 Офис</label>
+    </div>
+  </div>
+
+  <label>Red flags (не хочу видеть)</label>
+  <textarea rows="2" placeholder="например: переработки, аутсорс, стартап">переработки, ненормированный график</textarea>
+  <div class="helper">Через запятую. Матчер найдёт эти слова в вакансии.</div>
+
+  <label>Must have (обязательно)</label>
+  <textarea rows="2" placeholder="например: ДМС, белая зарплата">ДМС, удалённая работа, белая зарплата</textarea>
+  <div class="helper">Через запятую. Матчер проверит наличие в вакансии.</div>
+
+  <button class="btn btn-primary">Готово! →</button>
+  <button class="btn btn-secondary">← Назад</button>
+</body>
+</html>

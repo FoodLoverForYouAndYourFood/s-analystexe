@@ -1,0 +1,21 @@
+/*
+  Стили для элементов, добавляемых на страницу.
+  Пока пусто — для будущих фич.
+*/
+
+#matcher-btn {
+  margin-left: 12px;
+  padding: 8px 16px;
+  background: #FCD34D;
+  border: 2px solid #000;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #000;
+  transition: all 0.1s;
+}
+
+#matcher-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер - Результат (плохо)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      width: 380px;
+      background: #FFFEF9;
+      color: #000;
+      padding: 16px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      position: sticky;
+      top: 0;
+      background: #FFFEF9;
+      padding-bottom: 8px;
+      z-index: 10;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 18px;
+      flex: 1;
+    }
+
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .score-card {
+      background: #fee2e2;
+      border: 3px solid #dc2626;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .score-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .score-number {
+      font-size: 36px;
+      font-weight: 900;
+      color: #dc2626;
+    }
+
+    .score-verdict {
+      flex: 1;
+    }
+
+    .score-verdict-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #991b1b;
+    }
+
+    .score-verdict-text {
+      font-size: 13px;
+      color: #991b1b;
+    }
+
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card {
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .company-info {
+      margin-bottom: 16px;
+    }
+
+    .company-header {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .company-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #f9f9f9;
+    }
+
+    .tag.green { background: #dcfce7; border-color: #16a34a; color: #166534; }
+    .tag.yellow { background: #fef3c7; border-color: #ca8a04; color: #854d0e; }
+    .tag.blue { background: #dbeafe; border-color: #2563eb; color: #1e40af; }
+    .tag.red { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+
+    .company-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .match-compact {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 12px;
+    }
+
+    .match-compact:last-child {
+      border-bottom: none;
+    }
+
+    .match-compact-icon {
+      font-size: 16px;
+    }
+
+    .match-compact-text {
+      flex: 1;
+    }
+
+    .match-compact-label {
+      font-weight: 600;
+    }
+
+    .list-item {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .list-item-icon {
+      flex-shrink: 0;
+    }
+
+    .warning-box {
+      background: #fee2e2;
+      border: 2px solid #dc2626;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .warning-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #991b1b;
+      margin-bottom: 8px;
+    }
+
+    .warning-item {
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 6px;
+      color: #991b1b;
+    }
+
+    .market-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .market-cell {
+      padding: 8px;
+      background: #f9f9f9;
+      border: 2px solid #000;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .market-cell-label {
+      font-size: 10px;
+      color: #666;
+      margin-bottom: 2px;
+    }
+
+    .market-cell-value {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .market-cell.good { background: #dcfce7; }
+    .market-cell.yellow { background: #fef3c7; }
+    .market-cell.bad { background: #fee2e2; }
+
+    .decision-card {
+      background: #fff;
+      border: 3px solid #000;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .decision-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .decision-text {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 3px 3px 0 #000;
+      background: #fff;
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">М</div>
+    <div class="title">матчер</div>
+    <div class="back-btn">✕</div>
+  </div>
+
+  <div class="score-card">
+    <div class="score-header">
+      <div class="score-number">3/10</div>
+      <div class="score-verdict">
+        <div class="score-verdict-title">Слабое совпадение 🚫</div>
+        <div class="score-verdict-text">Лучше пропустить эту вакансию</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- О компании -->
+  <div class="section">
+    <div class="section-title">🏢 О компании</div>
+    <div class="card company-info">
+      <div class="company-header">OutsourceCorp • Аутсорс разработка</div>
+      <div class="company-tags">
+        <div class="tag blue">Small (~50)</div>
+        <div class="tag red">Outsource</div>
+        <div class="tag yellow">Stable</div>
+      </div>
+      <div class="company-desc">
+        Небольшая аутсорс-компания. Работают с энтерпрайз клиентами на Java/Spring. Известны высокой текучкой и переработками. Зарплаты ниже рынка, карьерный рост слабый.
+      </div>
+    </div>
+  </div>
+
+  <!-- Red Flags -->
+  <div class="warning-box">
+    <div class="warning-title">🚩 Обнаружены Red Flags</div>
+    <div class="warning-item">
+      <span>•</span>
+      <span>Найдено "ненормированный рабочий день"</span>
+    </div>
+    <div class="warning-item">
+      <span>•</span>
+      <span>Упоминание "готовность к переработкам"</span>
+    </div>
+    <div class="warning-item">
+      <span>•</span>
+      <span>Аутсорс — в твоих red flags</span>
+    </div>
+  </div>
+
+  <!-- Совпадение с требованиями (компактно) -->
+  <div class="section">
+    <div class="section-title">❌ Совпадение с требованиями</div>
+    <div class="card">
+      <div class="match-compact">
+        <div class="match-compact-icon">❌</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Навыки:</span> Требуется Java, Spring — у тебя только frontend
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">❌</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Формат:</span> Только офис — ты хочешь удалёнку
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">❌</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Зарплата:</span> До 120k — намного ниже минималки
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">❌</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Опыт:</span> Требуют 7+ лет backend, у тебя 3 года frontend
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Карьерные перспективы -->
+  <div class="section">
+    <div class="section-title">📉 Карьерные перспективы</div>
+    <div class="card">
+      <div class="list-item">
+        <div class="list-item-icon">🐌</div>
+        <div><strong>Рост:</strong> Медленный, потолок Senior через 5+ лет</div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon">⚠️</div>
+        <div><strong>Новые навыки:</strong> Legacy Java код, устаревший стек</div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon">👥</div>
+        <div><strong>Команда:</strong> 20 человек, высокая текучка, слабые процессы</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Рыночный анализ -->
+  <div class="section">
+    <div class="section-title">💰 Рыночный анализ</div>
+    <div class="card">
+      <div class="market-grid">
+        <div class="market-cell bad">
+          <div class="market-cell-label">Зарплата vs рынок</div>
+          <div class="market-cell-value">-40%</div>
+        </div>
+        <div class="market-cell bad">
+          <div class="market-cell-label">Востребованность стека</div>
+          <div class="market-cell-value">Низкая</div>
+        </div>
+      </div>
+      <div class="company-desc">
+        Java Enterprise — устаревающий стек, спрос падает. Зарплата на 40% ниже рынка для Middle разработчика. Работа в аутсорсе плохо смотрится в резюме для продуктовых компаний.
+      </div>
+    </div>
+  </div>
+
+  <!-- Рекомендация -->
+  <div class="decision-card">
+    <div class="decision-title">💡 Рекомендация</div>
+    <div class="decision-text">
+      <strong>Не рекомендую откликаться.</strong> Слишком много критических несовпадений: навыки, формат работы, зарплата, обнаружены red flags. Это не тот шаг в карьере который тебе нужен.
+    </div>
+    <div class="company-desc" style="margin-top: 12px;">
+      <strong>Лучше сфокусироваться на:</strong><br>
+      • Продуктовые компании с React/TypeScript<br>
+      • Удалёнка или гибрид<br>
+      • Зарплата от 200k+<br>
+      • Без упоминаний переработок
+    </div>
+  </div>
+
+  <button class="btn">← Проверить другую</button>
+</body>
+</html>

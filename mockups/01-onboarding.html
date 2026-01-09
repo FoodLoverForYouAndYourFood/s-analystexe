@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер - Первый запуск</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      width: 380px;
+      background: #FFFEF9;
+      color: #000;
+      padding: 20px;
+    }
+
+    .logo {
+      width: 60px;
+      height: 60px;
+      background: #FCD34D;
+      border: 3px solid #000;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 28px;
+      box-shadow: 4px 4px 0 #000;
+      margin: 0 auto 20px;
+    }
+
+    h1 {
+      font-weight: 900;
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .feature-list {
+      margin-bottom: 24px;
+    }
+
+    .feature {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 12px;
+    }
+
+    .feature-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      flex: 1;
+    }
+
+    .feature-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .feature-desc {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 4px 4px 0 #000;
+      background: #FCD34D;
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">М</div>
+
+  <h1>Матчер вакансий</h1>
+  <div class="subtitle">Проверяй вакансии на соответствие<br>твоим хотелкам за 10 секунд</div>
+
+  <div class="feature-list">
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-text">
+        <div class="feature-title">Мгновенный анализ</div>
+        <div class="feature-desc">AI проверит совпадение с резюме за 5-10 секунд</div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-text">
+        <div class="feature-title">Скор 1-10</div>
+        <div class="feature-desc">Понятная оценка + что совпало, а что нет</div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">🚩</div>
+      <div class="feature-text">
+        <div class="feature-title">Red flags</div>
+        <div class="feature-desc">Обнаружение твоих "не хочу" в вакансии</div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">💡</div>
+      <div class="feature-text">
+        <div class="feature-title">Советы</div>
+        <div class="feature-desc">Что добавить в резюме для этой вакансии</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn">Начать →</button>
+</body>
+</html>

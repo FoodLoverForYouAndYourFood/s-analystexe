@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер - Результат (отлично)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      width: 380px;
+      background: #FFFEF9;
+      color: #000;
+      padding: 16px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      position: sticky;
+      top: 0;
+      background: #FFFEF9;
+      padding-bottom: 8px;
+      z-index: 10;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 18px;
+      flex: 1;
+    }
+
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .score-card {
+      background: #dcfce7;
+      border: 3px solid #16a34a;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .score-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .score-number {
+      font-size: 36px;
+      font-weight: 900;
+      color: #16a34a;
+    }
+
+    .score-verdict {
+      flex: 1;
+    }
+
+    .score-verdict-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #16a34a;
+    }
+
+    .score-verdict-text {
+      font-size: 13px;
+      color: #166534;
+    }
+
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card {
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .company-info {
+      margin-bottom: 16px;
+    }
+
+    .company-header {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .company-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #f9f9f9;
+    }
+
+    .tag.green { background: #dcfce7; border-color: #16a34a; color: #166534; }
+    .tag.yellow { background: #fef3c7; border-color: #ca8a04; color: #854d0e; }
+    .tag.blue { background: #dbeafe; border-color: #2563eb; color: #1e40af; }
+
+    .company-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .match-compact {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 12px;
+    }
+
+    .match-compact:last-child {
+      border-bottom: none;
+    }
+
+    .match-compact-icon {
+      font-size: 16px;
+    }
+
+    .match-compact-text {
+      flex: 1;
+    }
+
+    .match-compact-label {
+      font-weight: 600;
+    }
+
+    .list-item {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .list-item-icon {
+      flex-shrink: 0;
+    }
+
+    .market-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .market-cell {
+      padding: 8px;
+      background: #f9f9f9;
+      border: 2px solid #000;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .market-cell-label {
+      font-size: 10px;
+      color: #666;
+      margin-bottom: 2px;
+    }
+
+    .market-cell-value {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .market-cell.good { background: #dcfce7; }
+    .market-cell.yellow { background: #fef3c7; }
+
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .pros-cons-col {
+      padding: 10px;
+      border: 2px solid #000;
+      border-radius: 8px;
+    }
+
+    .pros-col {
+      background: #dcfce7;
+    }
+
+    .cons-col {
+      background: #fee2e2;
+    }
+
+    .pros-cons-title {
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .decision-card {
+      background: #FCD34D;
+      border: 3px solid #000;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .decision-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .decision-text {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .action-item {
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 6px;
+      align-items: flex-start;
+    }
+
+    .action-num {
+      background: #000;
+      color: #fff;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 3px 3px 0 #000;
+      background: #fff;
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">М</div>
+    <div class="title">матчер</div>
+    <div class="back-btn">✕</div>
+  </div>
+
+  <div class="score-card">
+    <div class="score-header">
+      <div class="score-number">9/10</div>
+      <div class="score-verdict">
+        <div class="score-verdict-title">Отличное совпадение! 🎉</div>
+        <div class="score-verdict-text">Смело откликайся</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- О компании -->
+  <div class="section">
+    <div class="section-title">🏢 О компании</div>
+    <div class="card company-info">
+      <div class="company-header">Яндекс • Поиск и Реклама</div>
+      <div class="company-tags">
+        <div class="tag blue">Large (~10k)</div>
+        <div class="tag green">Product</div>
+        <div class="tag yellow">Mature</div>
+      </div>
+      <div class="company-desc">
+        Крупная продуктовая компания, один из лидеров рынка. Сильная техническая культура, много возможностей для роста. Известны хорошими условиями и зарплатами выше рынка.
+      </div>
+    </div>
+  </div>
+
+  <!-- Совпадение с требованиями (компактно) -->
+  <div class="section">
+    <div class="section-title">✅ Совпадение с требованиями</div>
+    <div class="card">
+      <div class="match-compact">
+        <div class="match-compact-icon">✅</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Навыки:</span> React, TS, Node.js — полное совпадение
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">✅</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Формат:</span> Удалёнка — в твоих предпочтениях
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">✅</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Зарплата:</span> 220-280k — выше твоей минималки
+        </div>
+      </div>
+      <div class="match-compact">
+        <div class="match-compact-icon">✅</div>
+        <div class="match-compact-text">
+          <span class="match-compact-label">Red flags:</span> Не найдено
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Карьерные перспективы -->
+  <div class="section">
+    <div class="section-title">📈 Карьерные перспективы</div>
+    <div class="card">
+      <div class="list-item">
+        <div class="list-item-icon">🚀</div>
+        <div><strong>Рост:</strong> Senior через 1.5-2 года, Team Lead через 3-4</div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon">💡</div>
+        <div><strong>Новые навыки:</strong> GraphQL, микросервисы, высоконагруженные системы</div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon">👥</div>
+        <div><strong>Команда:</strong> 15 человек, сильные менторы, код-ревью культура</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Рыночный анализ -->
+  <div class="section">
+    <div class="section-title">💰 Рыночный анализ</div>
+    <div class="card">
+      <div class="market-grid">
+        <div class="market-cell good">
+          <div class="market-cell-label">Зарплата vs рынок</div>
+          <div class="market-cell-value">+15%</div>
+        </div>
+        <div class="market-cell good">
+          <div class="market-cell-label">Востребованность стека</div>
+          <div class="market-cell-value">Высокая</div>
+        </div>
+      </div>
+      <div class="company-desc">
+        React + TypeScript — один из самых востребованных стеков в 2024. Зарплата на 15% выше медианы для Middle Frontend в Москве (190k).
+      </div>
+    </div>
+  </div>
+
+  <!-- Риски и возможности -->
+  <div class="section">
+    <div class="section-title">⚖️ Риски и возможности</div>
+    <div class="pros-cons">
+      <div class="pros-cons-col pros-col">
+        <div class="pros-cons-title">✅ Плюсы</div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Сильный бренд в резюме</div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Быстрый рост навыков</div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Стабильность компании</div>
+        </div>
+      </div>
+      <div class="pros-cons-col cons-col">
+        <div class="pros-cons-title">⚠️ Риски</div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Большая компания — бюрократия</div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">•</div>
+          <div>Много процессов</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Рекомендация -->
+  <div class="decision-card">
+    <div class="decision-title">💡 Рекомендация</div>
+    <div class="decision-text">
+      <strong>Однозначно откликайся.</strong> Отличное совпадение по всем параметрам, хорошие карьерные перспективы и зарплата выше рынка.
+    </div>
+    <div class="action-item">
+      <span class="action-num">1</span>
+      <span>Упомяни опыт с микросервисами в cover letter</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">2</span>
+      <span>Добавь в резюме ключевое слово "GraphQL"</span>
+    </div>
+    <div class="action-item">
+      <span class="action-num">3</span>
+      <span>Подготовь кейсы про работу в команде 10+ человек</span>
+    </div>
+  </div>
+
+  <button class="btn">← Проверить другую</button>
+</body>
+</html>

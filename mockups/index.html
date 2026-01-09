@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер - Мокапы интерфейса</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #FFFEF9;
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 40px;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid #000;
+    }
+
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .mockup-card {
+      background: #fff;
+      border: 3px solid #000;
+      border-radius: 12px;
+      padding: 20px;
+      text-decoration: none;
+      color: #000;
+      transition: all 0.2s;
+      box-shadow: 4px 4px 0 #000;
+      cursor: pointer;
+      display: block;
+    }
+
+    .mockup-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 #000;
+    }
+
+    .mockup-number {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 8px;
+      text-align: center;
+      line-height: 28px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .mockup-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .mockup-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .flow-diagram {
+      background: #f9f9f9;
+      border: 2px dashed #000;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 32px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 2;
+    }
+
+    .flow-arrow {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Матчер вакансий — Мокапы интерфейса</h1>
+  <div class="subtitle">Пользовательский путь через расширение</div>
+
+  <div class="flow-diagram">
+    <strong>User Flow:</strong><br>
+    Onboarding <span class="flow-arrow">→</span>
+    Загрузка резюме <span class="flow-arrow">→</span>
+    Настройки профиля <span class="flow-arrow">→</span>
+    Проверка вакансии <span class="flow-arrow">→</span>
+    Результаты
+  </div>
+
+  <div class="section">
+    <div class="section-title">Первый запуск</div>
+    <div class="mockup-grid">
+      <a href="01-onboarding.html" class="mockup-card">
+        <div class="mockup-number">1</div>
+        <div class="mockup-title">Onboarding</div>
+        <div class="mockup-description">
+          Приветственный экран с объяснением что делает матчер и какие фичи доступны
+        </div>
+      </a>
+
+      <a href="02-upload-resume.html" class="mockup-card">
+        <div class="mockup-number">2</div>
+        <div class="mockup-title">Загрузка резюме</div>
+        <div class="mockup-description">
+          Drag & drop для загрузки PDF/DOCX/TXT резюме. Показываем что данные не уходят на сервер
+        </div>
+      </a>
+
+      <a href="03-profile-settings.html" class="mockup-card">
+        <div class="mockup-number">3</div>
+        <div class="mockup-title">Настройки профиля</div>
+        <div class="mockup-description">
+          Зарплата, формат работы, red flags и must have требования для проверки вакансий
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Основной интерфейс</div>
+    <div class="mockup-grid">
+      <a href="04-check-vacancy.html" class="mockup-card">
+        <div class="mockup-number">4</div>
+        <div class="mockup-title">Проверка вакансии</div>
+        <div class="mockup-description">
+          Главный экран: ввод текста вакансии или автоматический парсинг со страницы
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Результаты анализа</div>
+    <div class="mockup-grid">
+      <a href="05-result-good.html" class="mockup-card">
+        <div class="mockup-number">5</div>
+        <div class="mockup-title">Отличное совпадение (8-10)</div>
+        <div class="mockup-description">
+          Зелёная карточка, высокий скор, много совпадений, советы как улучшить отклик
+        </div>
+      </a>
+
+      <a href="06-result-medium.html" class="mockup-card">
+        <div class="mockup-number">6</div>
+        <div class="mockup-title">Среднее совпадение (5-7)</div>
+        <div class="mockup-description">
+          Жёлтая карточка, есть gaps но можно рассмотреть, советы как компенсировать недостатки
+        </div>
+      </a>
+
+      <a href="07-result-bad.html" class="mockup-card">
+        <div class="mockup-number">7</div>
+        <div class="mockup-title">Слабое совпадение (1-4)</div>
+        <div class="mockup-description">
+          Красная карточка, много несовпадений, обнаружены red flags, рекомендация пропустить
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

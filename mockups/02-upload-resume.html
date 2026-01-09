@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер - Загрузка резюме</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      width: 380px;
+      background: #FFFEF9;
+      color: #000;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .step-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .step {
+      width: 40px;
+      height: 4px;
+      background: #e5e5e5;
+      border-radius: 2px;
+    }
+
+    .step.active {
+      background: #FCD34D;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .upload-area {
+      border: 2px dashed #000;
+      border-radius: 12px;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+      background: #fff;
+    }
+
+    .upload-area:hover {
+      background: #f9f9f9;
+      border-color: #FCD34D;
+      border-style: solid;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .upload-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .upload-subtitle {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .format-list {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .format-tag {
+      padding: 4px 12px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .helper {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 3px 3px 0 #000;
+      background: #fff;
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .btn-primary {
+      background: #FCD34D;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary.enabled {
+      opacity: 1;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">М</div>
+    <div class="title">матчер</div>
+  </div>
+
+  <div class="step-indicator">
+    <div class="step active"></div>
+    <div class="step"></div>
+    <div class="step"></div>
+  </div>
+
+  <h2>Шаг 1: Загрузи резюме</h2>
+  <div class="description">
+    Матчер сохранит резюме локально в браузере.<br>Никуда не отправляем, всё на твоём компе.
+  </div>
+
+  <div class="upload-area">
+    <div class="upload-icon">📄</div>
+    <div class="upload-title">Перетащи файл или нажми</div>
+    <div class="upload-subtitle">Макс. 5 МБ</div>
+    <div class="format-list">
+      <div class="format-tag">PDF</div>
+      <div class="format-tag">DOCX</div>
+      <div class="format-tag">TXT</div>
+    </div>
+  </div>
+
+  <div class="helper">
+    🔒 Файл остаётся только у тебя.<br>
+    Никакие данные не передаются на сервер.
+  </div>
+
+  <button class="btn btn-primary">Продолжить →</button>
+  <button class="btn btn-secondary">← Назад</button>
+</body>
+</html>

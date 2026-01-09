@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      width: 380px;
+      background: #FFFEF9;
+      color: #000;
+    }
+    
+    .container {
+      padding: 16px;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+    
+    .title {
+      font-weight: 800;
+      font-size: 18px;
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #000;
+      border-radius: 10px;
+      background: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.1s;
+    }
+    
+    .tab:hover {
+      background: #f5f5f5;
+    }
+    
+    .tab.active {
+      background: #FCD34D;
+      box-shadow: 3px 3px 0 #000;
+    }
+    
+    /* Sections */
+    .section {
+      display: none;
+    }
+    
+    .section.active {
+      display: block;
+    }
+    
+    /* Form elements */
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    
+    textarea, input {
+      width: 100%;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      resize: none;
+      background: #fff;
+    }
+    
+    textarea:focus, input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px #FCD34D;
+    }
+    
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 3px 3px 0 #000;
+    }
+    
+    .btn:hover:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: none;
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background: #FCD34D;
+    }
+    
+    .btn-secondary {
+      background: #fff;
+    }
+    
+    /* Checklist */
+    .checklist {
+      margin-bottom: 12px;
+    }
+    
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .check-item:last-child {
+      border-bottom: none;
+    }
+    
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+    }
+    
+    .check-item label {
+      margin: 0;
+      font-weight: 400;
+      flex: 1;
+    }
+    
+    /* Results */
+    .result-card {
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 3px 3px 0 #000;
+    }
+    
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .result-score {
+      font-size: 24px;
+      font-weight: 900;
+    }
+    
+    .result-verdict {
+      font-weight: 600;
+    }
+    
+    .result-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    
+    .result-icon {
+      font-size: 16px;
+      line-height: 1;
+    }
+    
+    .match { color: #16a34a; }
+    .partial { color: #ca8a04; }
+    .gap { color: #dc2626; }
+    
+    /* Status messages */
+    .status {
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    
+    .status.success {
+      background: #dcfce7;
+      border: 2px solid #16a34a;
+    }
+    
+    .status.error {
+      background: #fee2e2;
+      border: 2px solid #dc2626;
+    }
+    
+    .status.loading {
+      background: #fef3c7;
+      border: 2px solid #ca8a04;
+    }
+    
+    /* Helper text */
+    .helper {
+      font-size: 12px;
+      color: #666;
+      margin-top: -8px;
+      margin-bottom: 12px;
+    }
+    
+    /* File upload */
+    .file-upload {
+      border: 2px dashed #000;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+      background: #fff;
+    }
+    
+    .file-upload:hover {
+      background: #f9f9f9;
+      border-color: #FCD34D;
+    }
+    
+    .file-upload.dragover {
+      background: #FCD34D;
+      border-style: solid;
+    }
+    
+    .file-uploaded {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-small {
+      padding: 4px 12px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    .btn-small:hover {
+      background: #fee2e2;
+    }
+    
+    /* Parsed preview */
+    .parsed-card {
+      background: #f0fdf4;
+      border: 2px solid #16a34a;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    
+    .parsed-item {
+      margin-bottom: 8px;
+    }
+    
+    .parsed-label {
+      font-weight: 600;
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    /* Quick wins */
+    .quick-wins {
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    
+    .quick-wins-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .quick-win-item {
+      display: flex;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    
+    .quick-win-num {
+      background: #000;
+      color: #fff;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    /* API Status */
+    .api-status {
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    
+    .api-status.success {
+      background: #dcfce7;
+      border: 2px solid #16a34a;
+      color: #166534;
+    }
+    
+    .api-status.error {
+      background: #fee2e2;
+      border: 2px solid #dc2626;
+      color: #991b1b;
+    }
+    
+    .api-status.loading {
+      background: #fef3c7;
+      border: 2px solid #ca8a04;
+      color: #854d0e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">М</div>
+      <div class="title">матчер</div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="analyze">🎯 Проверить</div>
+      <div class="tab" data-tab="profile">👤 Профиль</div>
+      <div class="tab" data-tab="settings">⚙️</div>
+    </div>
+    
+    <!-- Analyze Section -->
+    <div id="analyze-section" class="section active">
+      <div id="no-profile-warning" class="status error" style="display: none;">
+        Сначала заполни профиль →
+      </div>
+      
+      <div id="status-message" class="status loading" style="display: none;">
+        Анализирую вакансию...
+      </div>
+      
+      <div id="analyze-form">
+        <label>Текст вакансии</label>
+        <textarea id="vacancy-text" rows="6" placeholder="Вставь текст вакансии или нажми «Взять со страницы»"></textarea>
+        
+        <button id="grab-btn" class="btn btn-secondary" style="margin-bottom: 12px;">
+          📋 Взять со страницы
+        </button>
+        
+        <button id="analyze-btn" class="btn btn-primary">
+          Проверить совпадение →
+        </button>
+      </div>
+      
+      <div id="results" style="display: none;">
+        <!-- Results will be inserted here -->
+      </div>
+    </div>
+    
+    <!-- Profile Section -->
+    <div id="profile-section" class="section">
+      <label>Резюме</label>
+      <div class="file-upload" id="file-upload-area">
+        <input type="file" id="resume-file" accept=".pdf,.doc,.docx,.txt" style="display: none;">
+        <div class="file-upload-content" id="file-upload-content">
+          <div style="font-size: 24px; margin-bottom: 8px;">📄</div>
+          <div style="font-weight: 600;">Перетащи файл или нажми</div>
+          <div style="font-size: 12px; color: #666; margin-top: 4px;">PDF, DOCX или TXT</div>
+        </div>
+        <div class="file-uploaded" id="file-uploaded" style="display: none;">
+          <div style="font-size: 24px;">✅</div>
+          <div style="font-weight: 600;" id="uploaded-filename">resume.pdf</div>
+          <button class="btn-small" id="remove-file-btn">Удалить</button>
+        </div>
+      </div>
+      <p class="helper">AI сам вытащит навыки, опыт и стек</p>
+      
+      <div id="parsed-preview" style="display: none;">
+        <label>Что распознал AI</label>
+        <div class="parsed-card" id="parsed-content"></div>
+      </div>
+      
+      <label>Желаемая зарплата (от)</label>
+      <input type="text" id="salary-min" placeholder="например: 200000">
+      <p class="helper">Укажи сам — в резюме обычно нет</p>
+      
+      <label>Формат работы</label>
+      <div class="checklist">
+        <div class="check-item">
+          <input type="checkbox" id="pref-remote">
+          <label for="pref-remote">Удалёнка</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="pref-hybrid">
+          <label for="pref-hybrid">Гибрид</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="pref-office">
+          <label for="pref-office">Офис</label>
+        </div>
+      </div>
+      
+      <label>Red flags (не хочу видеть)</label>
+      <textarea id="red-flags" rows="2" placeholder="например: переработки, стартап, outsource"></textarea>
+      <p class="helper">Через запятую</p>
+      
+      <label>Must have (обязательно)</label>
+      <textarea id="must-have" rows="2" placeholder="например: ДМС, белая зарплата, удалёнка"></textarea>
+      <p class="helper">Через запятую</p>
+      
+      <button id="save-profile-btn" class="btn btn-primary">
+        💾 Сохранить профиль
+      </button>
+      
+      <div id="save-status" class="status success" style="display: none; margin-top: 12px;">
+        ✅ Профиль сохранён
+      </div>
+    </div>
+    
+    <!-- Settings Section -->
+    <div id="settings-section" class="section">
+      <div style="margin-bottom: 16px;">
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">🔑 GigaChat API</div>
+        <div style="font-size: 12px; color: #666;">Нужен для работы AI-анализа</div>
+      </div>
+      
+      <label>Authorization Key</label>
+      <input type="password" id="gigachat-auth-key" placeholder="Вставь ключ из Sber Studio">
+      
+      <p class="helper">
+        Получить: <a href="https://developers.sber.ru/studio/" target="_blank" style="color: #000;">developers.sber.ru/studio</a><br>
+        Проект → Настройки API → Получить ключ
+      </p>
+      
+      <div class="api-status" id="api-status" style="display: none;"></div>
+      
+      <button id="test-api-btn" class="btn btn-secondary" style="margin-bottom: 12px;">
+        🧪 Проверить подключение
+      </button>
+      
+      <button id="save-settings-btn" class="btn btn-primary">
+        💾 Сохранить
+      </button>
+      
+      <div id="settings-save-status" class="status success" style="display: none; margin-top: 12px;">
+        ✅ Сохранено
+      </div>
+      
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #eee;">
+        <div style="font-size: 12px; color: #666;">
+          <strong>Как получить:</strong><br>
+          1. Зарегистрируйся на developers.sber.ru<br>
+          2. Создай проект → GigaChat API<br>
+          3. Настройки API → Получить ключ<br>
+          4. Скопируй Authorization Key
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

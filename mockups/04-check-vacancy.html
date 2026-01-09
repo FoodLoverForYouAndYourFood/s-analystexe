@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Матчер - Проверить вакансию</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      width: 380px;
+      background: #FFFEF9;
+      color: #000;
+      padding: 16px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: #FCD34D;
+      border: 2px solid #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 18px;
+      flex: 1;
+    }
+
+    .settings-icon {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .settings-icon:hover {
+      background: #f5f5f5;
+    }
+
+    .profile-card {
+      background: #f0fdf4;
+      border: 2px solid #16a34a;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 16px;
+      font-size: 12px;
+    }
+
+    .profile-label {
+      font-weight: 600;
+      color: #166534;
+      margin-bottom: 4px;
+    }
+
+    .profile-value {
+      color: #166534;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    textarea {
+      width: 100%;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      resize: none;
+      background: #fff;
+      font-family: inherit;
+    }
+
+    textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px #FCD34D;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .btn-primary {
+      background: #FCD34D;
+      margin-bottom: 12px;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      margin-bottom: 12px;
+    }
+
+    .helper {
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .quick-tip {
+      background: #fef3c7;
+      border: 2px solid #ca8a04;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12px;
+      margin-top: 16px;
+    }
+
+    .quick-tip-title {
+      font-weight: 600;
+      color: #854d0e;
+      margin-bottom: 4px;
+    }
+
+    .quick-tip-text {
+      color: #854d0e;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">М</div>
+    <div class="title">матчер</div>
+    <div class="settings-icon">⚙️</div>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-label">✅ Профиль настроен</div>
+    <div class="profile-value">Frontend Developer • От 200k • Удалёнка/гибрид</div>
+  </div>
+
+  <label>Текст вакансии</label>
+  <textarea rows="8" placeholder="Вставь текст вакансии или нажми «Взять со страницы»"></textarea>
+
+  <button class="btn btn-secondary">📋 Взять со страницы</button>
+  <button class="btn btn-primary">🎯 Проверить совпадение</button>
+
+  <div class="quick-tip">
+    <div class="quick-tip-title">💡 Совет</div>
+    <div class="quick-tip-text">Открой вакансию на hh.ru, LinkedIn или Habr, потом нажми «Взять со страницы» — матчер сам вытащит текст</div>
+  </div>
+
+  <div class="helper">
+    Проверка занимает 5-10 секунд
+  </div>
+</body>
+</html>
