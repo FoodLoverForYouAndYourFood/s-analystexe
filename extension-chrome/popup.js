@@ -5,6 +5,7 @@
 
 // ===== Config =====
 const API_URL = 'https://d.analystexe.ru';
+const MATCHER_WEB_URL = 'https://d.analystexe.ru';
 
 // ===== State =====
 let profile = null;
@@ -158,6 +159,9 @@ function initButtons() {
   document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
   document.getElementById('grab-btn').addEventListener('click', grabFromPage);
   document.getElementById('analyze-btn').addEventListener('click', analyzeVacancy);
+  document.getElementById('open-matcher-btn').addEventListener('click', () => {
+    chrome.tabs.create({ url: MATCHER_WEB_URL });
+  });
 }
 
 // ===== Grab from page =====
