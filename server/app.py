@@ -8,6 +8,7 @@ import time
 import logging
 import json
 import re
+from datetime import datetime
 
 # Настройка логирования
 logging.basicConfig(
@@ -41,6 +42,9 @@ token_cache = {
     'expires_at': 0
 }
 
+REQUEST_LOG_PATH = os.getenv('REQUEST_LOG_PATH', '/var/log/matcher-main/requests.jsonl')
+REQUEST_LOG_FULL_PATH = os.getenv('REQUEST_LOG_FULL_PATH', '/var/log/matcher-main/requests_full.jsonl')
+
 DEFAULT_WEIGHTS = {
     'education_match': 25,
     'experience_match': 25,
@@ -61,6 +65,27 @@ def is_authorized(req):
 
     api_key = req.headers.get('X-API-Key', '').strip()
     return api_key == MATCHER_API_KEY
+
+def _ensure_log_dir(path):
+    directory = os.path.dirname(path)
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+def _write_jsonl(path, payload):
+    try:
+        _ensure_log_dir(path)
+        with open(path, 'a', encoding='utf-8') as fh:
+            fh.write(json.dumps(payload, ensure_ascii=False) + '\n')
+    except Exception as exc:
+        logger.error(f'Failed to write log: {exc}')
+
+def _client_meta(req):
+    return {
+        'ip': req.headers.get('X-Real-IP') or req.headers.get('X-Forwarded-For') or req.remote_addr,
+        'user_agent': req.headers.get('User-Agent'),
+        'referer': req.headers.get('Referer'),
+        'origin': req.headers.get('Origin')
+    }
 
 def get_gigachat_token():
     """Получить токен GigaChat (с кэшированием)"""
@@ -394,6 +419,8 @@ def health():
 def analyze_vacancy():
     """Анализ вакансии"""
     try:
+        request_id = str(uuid.uuid4())
+        start_time = time.time()
         data = request.json
         logger.info('Received analyze request')
 
@@ -455,11 +482,47 @@ def analyze_vacancy():
         if explanation.get('recommendation'):
             result['recommendation'] = explanation['recommendation']
 
+        duration_ms = int((time.time() - start_time) * 1000)
+        meta_log = {
+            'ts': datetime.utcnow().isoformat() + 'Z',
+            'request_id': request_id,
+            'status': 'ok',
+            'duration_ms': duration_ms,
+            'score_raw': score_100,
+            'score': score_10,
+            'meta': _client_meta(request)
+        }
+        full_log = {
+            'ts': meta_log['ts'],
+            'request_id': request_id,
+            'status': 'ok',
+            'duration_ms': duration_ms,
+            'meta': meta_log['meta'],
+            'vacancy_text': vacancy_text,
+            'resume_text': resume_text,
+            'profile': profile,
+            'job_data': job_data,
+            'resume_data': resume_data,
+            'report': score_result['report'],
+            'result': result
+        }
+        _write_jsonl(REQUEST_LOG_PATH, meta_log)
+        _write_jsonl(REQUEST_LOG_FULL_PATH, full_log)
+
         logger.info('Analysis completed successfully')
         return jsonify(result)
 
     except Exception as e:
         logger.exception(f'Unexpected error in analyze_vacancy')
+        error_log = {
+            'ts': datetime.utcnow().isoformat() + 'Z',
+            'request_id': str(uuid.uuid4()),
+            'status': 'error',
+            'error': str(e),
+            'meta': _client_meta(request)
+        }
+        _write_jsonl(REQUEST_LOG_PATH, error_log)
+        _write_jsonl(REQUEST_LOG_FULL_PATH, error_log)
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
