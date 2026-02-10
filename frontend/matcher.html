@@ -33,9 +33,21 @@
             </div>
             <span class="font-bold text-xl">матчер</span>
         </div>
-        <a href="./index.html" class="bg-white border-2 border-black rounded-xl px-4 py-2 font-semibold shadow-brutal-sm hover-press-sm transition-all cursor-pointer text-sm">
-            ← К Скринеру
-        </a>
+        <div class="flex items-center gap-3">
+            <a id="login-link" href="/cabinet.html" class="bg-white border-2 border-black rounded-xl px-4 py-2 font-semibold shadow-brutal-sm hover-press-sm transition-all cursor-pointer text-sm">
+                Войти
+            </a>
+            <a id="cabinet-link" href="/cabinet.html" class="hidden bg-[#FCD34D] border-2 border-black rounded-xl px-4 py-2 font-semibold shadow-brutal-sm hover-press-sm transition-all cursor-pointer text-sm">
+                Личный кабинет
+            </a>
+            <a id="admin-link" href="/cabinet.html#admin" class="hidden bg-black text-white border-2 border-black rounded-xl px-4 py-2 font-semibold shadow-brutal-sm hover-press-sm transition-all cursor-pointer text-sm">
+                Админ
+            </a>
+            <span id="user-badge" class="hidden border-2 border-black rounded-xl px-3 py-2 text-xs font-semibold shadow-brutal-sm"></span>
+            <a href="./index.html" class="bg-white border-2 border-black rounded-xl px-4 py-2 font-semibold shadow-brutal-sm hover-press-sm transition-all cursor-pointer text-sm">
+                ← К Скринеру
+            </a>
+        </div>
     </nav>
 
     <!-- Hero -->
@@ -92,6 +104,7 @@
                 >
                     Сравнить →
                 </button>
+                <p class="text-sm text-gray-600 mt-3">Для анализа нужен вход через Telegram. Открой «Личный кабинет».</p>
                 <p id="error-msg" class="text-red-600 mt-4 hidden"></p>
             </div>
 
@@ -228,6 +241,79 @@
         =====================================================
         */
 
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        function getToken() {
+            const stored = localStorage.getItem('screener_session_token');
+            if (stored) return stored;
+            const cookieToken = getCookie('screener_session');
+            if (cookieToken) {
+                localStorage.setItem('screener_session_token', cookieToken);
+                return cookieToken;
+            }
+            return '';
+        }
+
+        function ensureCookie(token) {
+            if (!token) return;
+            const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie = `screener_session=${token}; Path=/; Max-Age=86400; SameSite=Lax${secure}`;
+        }
+
+        function updateAuthUI(user, isAdmin) {
+            const loginLink = document.getElementById('login-link');
+            const cabinetLink = document.getElementById('cabinet-link');
+            const adminLink = document.getElementById('admin-link');
+            const userBadge = document.getElementById('user-badge');
+            if (!user) {
+                loginLink.classList.remove('hidden');
+                cabinetLink.classList.add('hidden');
+                adminLink.classList.add('hidden');
+                userBadge.classList.add('hidden');
+                return;
+            }
+            loginLink.classList.add('hidden');
+            cabinetLink.classList.remove('hidden');
+            userBadge.textContent = `@${user.username || user.first_name || 'user'}`;
+            userBadge.classList.remove('hidden');
+            if (isAdmin) {
+                adminLink.classList.remove('hidden');
+            } else {
+                adminLink.classList.add('hidden');
+            }
+        }
+
+        async function bootAuth() {
+            const token = getToken();
+            if (!token) {
+                updateAuthUI(null, false);
+                return;
+            }
+            ensureCookie(token);
+            try {
+                const resp = await fetch('/api/me', {
+                    headers: { Authorization: `Bearer ${token}` },
+                    credentials: 'same-origin'
+                });
+                if (!resp.ok) {
+                    localStorage.removeItem('screener_session_token');
+                    updateAuthUI(null, false);
+                    return;
+                }
+                const data = await resp.json();
+                if (!data.ok) {
+                    updateAuthUI(null, false);
+                    return;
+                }
+                updateAuthUI(data.user, data.is_admin);
+            } catch (e) {
+                updateAuthUI(null, false);
+            }
+        }
+
         async function analyzeMatch() {
             const vacancy = document.getElementById('vacancy-input').value.trim();
             const resume = document.getElementById('resume-input').value.trim();
@@ -257,14 +343,22 @@
 
             try {
                 // TODO: Заменить на реальный endpoint
+                const token = getToken();
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers,
                     body: JSON.stringify({ vacancy, resume })
                 });
 
+                if (response.status === 401) {
+                    throw new Error('Нужен вход через Telegram. Открой «Личный кабинет».');
+                }
                 if (!response.ok) {
-                    throw new Error('API Error');
+                    throw new Error('Ошибка анализа. Попробуй еще раз.');
                 }
 
                 const analysis = await response.json();
@@ -351,6 +445,8 @@
             // Scroll to results
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+
+        bootAuth();
     </script>
 
 </body>
