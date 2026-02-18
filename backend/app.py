@@ -197,7 +197,12 @@ def _fetch_history(user_id: str, limit: int, offset: int):
     return [_row_to_item(row) for row in rows]
 
 
-def _fetch_history_all(limit: int, offset: int, user_id: Optional[str] = None):
+def _fetch_history_all(
+    limit: int,
+    offset: int,
+    user_id: Optional[str] = None,
+    username: Optional[str] = None,
+):
     conn = _db_connect()
     if user_id:
         rows = conn.execute(
@@ -208,6 +213,16 @@ def _fetch_history_all(limit: int, offset: int, user_id: Optional[str] = None):
             LIMIT ? OFFSET ?
             """,
             (user_id, limit, offset),
+        ).fetchall()
+    elif username:
+        rows = conn.execute(
+            """
+            SELECT * FROM matcher_requests
+            WHERE username = ? OR username LIKE ?
+            ORDER BY id DESC
+            LIMIT ? OFFSET ?
+            """,
+            (username, f"%{username}%", limit, offset),
         ).fetchall()
     else:
         rows = conn.execute(
@@ -900,7 +915,10 @@ class Handler(BaseHTTPRequestHandler):
             limit = _clamp_limit((query.get("limit") or [None])[0])
             offset = _clamp_offset((query.get("offset") or [None])[0])
             user_id = (query.get("user_id") or [""])[0].strip() or None
-            items = _fetch_history_all(limit, offset, user_id)
+            username = (query.get("username") or [""])[0].strip() or None
+            if username and username.startswith("@"):
+                username = username[1:]
+            items = _fetch_history_all(limit, offset, user_id, username)
             self._send_json(200, {"ok": True, "items": items, "limit": limit, "offset": offset})
             return
 

@@ -82,7 +82,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <h2 class="text-2xl font-black">Админ: все запросы</h2>
           <div class="flex flex-col sm:flex-row gap-3">
-            <input id="admin-user-filter" class="border-2 border-black rounded-xl px-3 py-2 text-sm" placeholder="user_id (опционально)">
+            <input id="admin-user-filter" class="border-2 border-black rounded-xl px-3 py-2 text-sm" placeholder="user_id или @username">
             <button id="admin-load-btn" class="bg-black text-white border-2 border-black rounded-2xl px-4 py-2 font-semibold shadow-brutal hover-press transition-all">
               Загрузить
             </button>
@@ -98,6 +98,10 @@
     let loginState = null;
     let historyOffset = 0;
     const historyLimit = 10;
+    let historyLoading = false;
+    let adminLoading = false;
+    const historySeen = new Set();
+    const adminSeen = new Set();
 
     const loginSection = document.getElementById('login-section');
     const userSection = document.getElementById('user-section');
@@ -281,32 +285,73 @@
     }
 
     async function loadHistory(reset = false) {
+      if (historyLoading) return;
+      historyLoading = true;
       if (reset) {
         historyOffset = 0;
+        historySeen.clear();
         historyList.innerHTML = '';
       }
       const resp = await fetch(`/api/history?limit=${historyLimit}&offset=${historyOffset}`, { headers: authHeaders(), credentials: 'same-origin' });
-      if (!resp.ok) return;
+      if (!resp.ok) {
+        historyLoading = false;
+        return;
+      }
       const data = await resp.json();
-      if (!data.ok) return;
+      if (!data.ok) {
+        historyLoading = false;
+        return;
+      }
+      const fetchedCount = (data.items || []).length;
+      const filtered = (data.items || []).filter((item) => {
+        const key = item.request_id || item.id;
+        if (historySeen.has(key)) return false;
+        historySeen.add(key);
+        return true;
+      });
       if (historyOffset === 0) {
-        renderItems(data.items, historyList, false);
-      } else if (data.items && data.items.length) {
+        renderItems(filtered, historyList, false);
+      } else if (filtered.length) {
         const wrapper = document.createElement('div');
-        wrapper.innerHTML = data.items.map((item) => renderCard(item, false)).join('');
+        wrapper.innerHTML = filtered.map((item) => renderCard(item, false)).join('');
         historyList.appendChild(wrapper);
       }
-      historyOffset += data.items.length;
+      historyOffset += fetchedCount;
+      historyLoading = false;
     }
 
     async function loadAdminHistory() {
-      const userId = adminUserFilter.value.trim();
-      const query = userId ? `user_id=${encodeURIComponent(userId)}&limit=20&offset=0` : 'limit=20&offset=0';
+      if (adminLoading) return;
+      adminLoading = true;
+      const raw = adminUserFilter.value.trim();
+      let query = 'limit=20&offset=0';
+      if (raw) {
+        if (/^\\d+$/.test(raw)) {
+          query = `user_id=${encodeURIComponent(raw)}&limit=20&offset=0`;
+        } else {
+          const username = raw.startsWith('@') ? raw.slice(1) : raw;
+          query = `username=${encodeURIComponent(username)}&limit=20&offset=0`;
+        }
+      }
       const resp = await fetch(`/api/admin/history?${query}`, { headers: authHeaders(), credentials: 'same-origin' });
-      if (!resp.ok) return;
+      if (!resp.ok) {
+        adminLoading = false;
+        return;
+      }
       const data = await resp.json();
-      if (!data.ok) return;
-      renderItems(data.items, adminHistoryList, true);
+      if (!data.ok) {
+        adminLoading = false;
+        return;
+      }
+      adminSeen.clear();
+      const filtered = (data.items || []).filter((item) => {
+        const key = item.request_id || item.id;
+        if (adminSeen.has(key)) return false;
+        adminSeen.add(key);
+        return true;
+      });
+      renderItems(filtered, adminHistoryList, true);
+      adminLoading = false;
     }
 
     async function startLogin() {
