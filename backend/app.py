@@ -551,6 +551,13 @@ def _repair_json_with_gigachat(raw_text: str, token: str, models: list[str]):
 
 def _normalize_matcher_result(raw: dict) -> dict:
     requirements = raw.get("requirements") or []
+    if isinstance(requirements, dict):
+        requirements = [requirements]
+    if not requirements:
+        if isinstance(raw, list):
+            requirements = raw
+        elif raw.get("requirement") or raw.get("status"):
+            requirements = [raw]
     quick_wins = raw.get("quick_wins") or []
     summary = raw.get("summary") or ""
 
