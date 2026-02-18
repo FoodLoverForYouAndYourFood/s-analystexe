@@ -218,7 +218,7 @@ def _fetch_history_all(
         rows = conn.execute(
             """
             SELECT * FROM matcher_requests
-            WHERE username = ? OR username LIKE ?
+            WHERE LOWER(username) = LOWER(?) OR LOWER(username) LIKE LOWER(?)
             ORDER BY id DESC
             LIMIT ? OFFSET ?
             """,
@@ -918,6 +918,9 @@ class Handler(BaseHTTPRequestHandler):
             username = (query.get("username") or [""])[0].strip() or None
             if username and username.startswith("@"):
                 username = username[1:]
+            if user_id and not user_id.isdigit() and not username:
+                username = user_id.lstrip("@")
+                user_id = None
             items = _fetch_history_all(limit, offset, user_id, username)
             self._send_json(200, {"ok": True, "items": items, "limit": limit, "offset": offset})
             return
