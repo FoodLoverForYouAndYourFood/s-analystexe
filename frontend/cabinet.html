@@ -164,50 +164,120 @@
       return resp.json();
     }
 
+    const statusMap = {
+      match: { label: 'MATCH', color: 'text-green-700', bg: 'bg-green-50' },
+      partial: { label: 'PARTIAL', color: 'text-yellow-700', bg: 'bg-yellow-50' },
+      gap: { label: 'GAP', color: 'text-red-700', bg: 'bg-red-50' }
+    };
+
+    const extractMatches = (item) => {
+      const result = item.result || {};
+      if (Array.isArray(result.matches) && result.matches.length) {
+        return result.matches.map((match) => ({
+          item: match.item || 'Требование',
+          status: (match.status || 'partial').toLowerCase(),
+          comment: match.comment || '—'
+        }));
+      }
+      const reqs = result.requirements || (result.raw && result.raw.requirements) || [];
+      if (Array.isArray(reqs) && reqs.length) {
+        return reqs.map((req) => ({
+          item: req.requirement || 'Требование',
+          status: (req.status || 'partial').toLowerCase(),
+          comment: req.found_in_resume || req.recommendation || '—'
+        }));
+      }
+      return [];
+    };
+
+    const renderMatchesBlock = (item) => {
+      const matches = extractMatches(item);
+      if (!matches.length) return '';
+      let matchCount = 0;
+      let partialCount = 0;
+      let gapCount = 0;
+      matches.forEach((m) => {
+        if (m.status === 'match') matchCount += 1;
+        else if (m.status === 'gap') gapCount += 1;
+        else partialCount += 1;
+      });
+      const summary = `
+        <div class="mt-3 text-sm">
+          <span class="font-semibold">Совпадения:</span>
+          ${matchCount} match · ${partialCount} partial · ${gapCount} gap
+        </div>
+      `;
+      const rows = matches.map((m) => {
+        const style = statusMap[m.status] || statusMap.partial;
+        return `
+          <div class="${style.bg} border-2 border-black rounded-lg p-3">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="font-semibold">${escapeHtml(m.item)}</div>
+                <div class="text-sm text-gray-600 mt-1">${escapeHtml(m.comment)}</div>
+              </div>
+              <div class="${style.color} text-xs font-bold">${style.label}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      return `
+        ${summary}
+        <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3 mt-3">
+          <summary class="font-semibold cursor-pointer">Критерии и совпадения</summary>
+          <div class="mt-3 grid gap-3">${rows}</div>
+        </details>
+      `;
+    };
+
+    const renderCard = (item, showUser) => {
+      const statusLabel = item.status === 'ok' ? 'Успешно' : 'Ошибка';
+      const statusClass = item.status === 'ok' ? 'bg-[#DCFCE7]' : 'bg-[#FEE2E2]';
+      const userLine = showUser
+        ? `<div class="text-xs text-gray-500">user_id: ${escapeHtml(item.user_id || '')} · ${escapeHtml(item.username || '')}</div>`
+        : '';
+      const summary = item.result && item.result.summary ? escapeHtml(item.result.summary) : '';
+      const error = item.error ? `<div class="text-sm text-red-700">${escapeHtml(item.error)}</div>` : '';
+      const matchesBlock = item.result ? renderMatchesBlock(item) : '';
+      return `
+        <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-brutal">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <div class="text-sm text-gray-500">${escapeHtml(item.created_at || '')}</div>
+              <div class="text-sm text-gray-500">request_id: ${escapeHtml(item.request_id || '')}</div>
+              ${userLine}
+            </div>
+            <div class="${statusClass} border-2 border-black rounded-full px-3 py-1 text-xs font-bold">${statusLabel}</div>
+          </div>
+          ${summary ? `<div class="mt-3 text-sm">${summary}</div>` : ''}
+          ${error ? `<div class="mt-3">${error}</div>` : ''}
+          ${matchesBlock}
+          <div class="mt-4 grid gap-3">
+            <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
+              <summary class="font-semibold cursor-pointer">Текст вакансии</summary>
+              <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(item.vacancy_text || '')}</pre>
+            </details>
+            <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
+              <summary class="font-semibold cursor-pointer">Текст резюме</summary>
+              <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(item.resume_text || '')}</pre>
+            </details>
+            ${item.result ? `
+              <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
+                <summary class="font-semibold cursor-pointer">Результат</summary>
+                <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(JSON.stringify(item.result, null, 2))}</pre>
+              </details>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    };
+
     function renderItems(items, target, showUser) {
       if (!items || items.length === 0) {
         target.innerHTML = '<div class="text-sm text-gray-600">Пока пусто.</div>';
         return;
       }
-      target.innerHTML = items.map((item) => {
-        const statusLabel = item.status === 'ok' ? 'Успешно' : 'Ошибка';
-        const statusClass = item.status === 'ok' ? 'bg-[#DCFCE7]' : 'bg-[#FEE2E2]';
-        const userLine = showUser
-          ? `<div class="text-xs text-gray-500">user_id: ${escapeHtml(item.user_id || '')} · ${escapeHtml(item.username || '')}</div>`
-          : '';
-        const summary = item.result && item.result.summary ? escapeHtml(item.result.summary) : '';
-        const error = item.error ? `<div class="text-sm text-red-700">${escapeHtml(item.error)}</div>` : '';
-        return `
-          <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-brutal">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <div class="text-sm text-gray-500">${escapeHtml(item.created_at || '')}</div>
-                <div class="text-sm text-gray-500">request_id: ${escapeHtml(item.request_id || '')}</div>
-                ${userLine}
-              </div>
-              <div class="${statusClass} border-2 border-black rounded-full px-3 py-1 text-xs font-bold">${statusLabel}</div>
-            </div>
-            ${summary ? `<div class="mt-3 text-sm">${summary}</div>` : ''}
-            ${error ? `<div class="mt-3">${error}</div>` : ''}
-            <div class="mt-4 grid gap-3">
-              <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
-                <summary class="font-semibold cursor-pointer">Текст вакансии</summary>
-                <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(item.vacancy_text || '')}</pre>
-              </details>
-              <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
-                <summary class="font-semibold cursor-pointer">Текст резюме</summary>
-                <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(item.resume_text || '')}</pre>
-              </details>
-              ${item.result ? `
-                <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
-                  <summary class="font-semibold cursor-pointer">Результат</summary>
-                  <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(JSON.stringify(item.result, null, 2))}</pre>
-                </details>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
+      target.innerHTML = items.map((item) => renderCard(item, showUser)).join('');
     }
 
     async function loadHistory(reset = false) {
@@ -223,41 +293,7 @@
         renderItems(data.items, historyList, false);
       } else if (data.items && data.items.length) {
         const wrapper = document.createElement('div');
-        wrapper.innerHTML = data.items.map((item) => {
-          const statusLabel = item.status === 'ok' ? 'Успешно' : 'Ошибка';
-          const statusClass = item.status === 'ok' ? 'bg-[#DCFCE7]' : 'bg-[#FEE2E2]';
-          const summary = item.result && item.result.summary ? escapeHtml(item.result.summary) : '';
-          const error = item.error ? `<div class="text-sm text-red-700">${escapeHtml(item.error)}</div>` : '';
-          return `
-            <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-brutal mt-4">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                  <div class="text-sm text-gray-500">${escapeHtml(item.created_at || '')}</div>
-                  <div class="text-sm text-gray-500">request_id: ${escapeHtml(item.request_id || '')}</div>
-                </div>
-                <div class="${statusClass} border-2 border-black rounded-full px-3 py-1 text-xs font-bold">${statusLabel}</div>
-              </div>
-              ${summary ? `<div class="mt-3 text-sm">${summary}</div>` : ''}
-              ${error ? `<div class="mt-3">${error}</div>` : ''}
-              <div class="mt-4 grid gap-3">
-                <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
-                  <summary class="font-semibold cursor-pointer">Текст вакансии</summary>
-                  <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(item.vacancy_text || '')}</pre>
-                </details>
-                <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
-                  <summary class="font-semibold cursor-pointer">Текст резюме</summary>
-                  <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(item.resume_text || '')}</pre>
-                </details>
-                ${item.result ? `
-                  <details class="bg-[#FFFEF9] border-2 border-black rounded-xl p-3">
-                    <summary class="font-semibold cursor-pointer">Результат</summary>
-                    <pre class="text-xs whitespace-pre-wrap mt-2">${escapeHtml(JSON.stringify(item.result, null, 2))}</pre>
-                  </details>
-                ` : ''}
-              </div>
-            </div>
-          `;
-        }).join('');
+        wrapper.innerHTML = data.items.map((item) => renderCard(item, false)).join('');
         historyList.appendChild(wrapper);
       }
       historyOffset += data.items.length;
