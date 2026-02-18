@@ -468,17 +468,85 @@ def _get_gigachat_token() -> str:
 
 
 def _try_parse_json(content: str):
-    try:
-        return json.loads(content)
-    except Exception:
-        pass
-    match = re.search(r"\{[\\s\\S]*\\}", content)
-    if not match:
+    def cleanup(text: str) -> str:
+        text = text.strip()
+        if text.startswith("```"):
+            text = text.strip("`").strip()
+            if text.lower().startswith("json"):
+                text = text[4:].strip()
+        return text
+
+    def try_decode(text: str):
+        try:
+            return json.loads(text)
+        except Exception:
+            return None
+
+    def raw_decode_first(text: str):
+        decoder = json.JSONDecoder()
+        for idx, ch in enumerate(text):
+            if ch != "{":
+                continue
+            try:
+                obj, _ = decoder.raw_decode(text[idx:])
+                return obj
+            except Exception:
+                continue
         return None
-    try:
-        return json.loads(match.group(0))
-    except Exception:
-        return None
+
+    base = cleanup(content)
+    for candidate in (base, re.sub(r",\s*([}\]])", r"\1", base)):
+        parsed = try_decode(candidate)
+        if parsed is not None:
+            return parsed
+        parsed = raw_decode_first(candidate)
+        if parsed is not None:
+            return parsed
+    return None
+
+
+def _repair_json_with_gigachat(raw_text: str, token: str, models: list[str]):
+    repair_prompt = (
+        "Ниже текст ответа. В нем должен быть JSON, но он может быть сломан.\n"
+        "Исправь и верни ТОЛЬКО корректный JSON без пояснений, без markdown.\n"
+        "Если исправить нельзя — верни JSON вида:\n"
+        "{\n"
+        "  \"requirements\": [],\n"
+        "  \"quick_wins\": [],\n"
+        "  \"summary\": \"\"\n"
+        "}\n\n"
+        f"ТЕКСТ:\n{raw_text}"
+    )
+    for model in models:
+        payload = json.dumps({
+            "model": model,
+            "messages": [
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": repair_prompt},
+            ],
+            "temperature": 0.0,
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            "https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}",
+            },
+            method="POST",
+        )
+        try:
+            with _urlopen(req, timeout=40) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            content = data["choices"][0]["message"]["content"].strip()
+        except Exception:
+            continue
+
+        parsed = _try_parse_json(content)
+        if parsed is not None:
+            return parsed
+    return None
 
 
 def call_gigachat(vacancy: str, resume: str) -> dict:
@@ -509,6 +577,7 @@ def call_gigachat(vacancy: str, resume: str) -> dict:
     token = _get_gigachat_token()
     models = [m.strip() for m in GIGACHAT_MODELS.split(",") if m.strip()]
     last_error = ""
+    last_content = ""
 
     for model in models:
         payload = json.dumps({
@@ -561,8 +630,14 @@ def call_gigachat(vacancy: str, resume: str) -> dict:
         parsed = _try_parse_json(content)
         if parsed is not None:
             return parsed
+        last_content = content
         last_error = "gigachat_invalid_json"
         continue
+
+    if last_error == "gigachat_invalid_json" and last_content:
+        repaired = _repair_json_with_gigachat(last_content, token, models)
+        if repaired is not None:
+            return repaired
 
     raise RuntimeError(last_error or "gigachat_failed")
 
