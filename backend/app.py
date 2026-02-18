@@ -549,6 +549,65 @@ def _repair_json_with_gigachat(raw_text: str, token: str, models: list[str]):
     return None
 
 
+def _normalize_matcher_result(raw: dict) -> dict:
+    requirements = raw.get("requirements") or []
+    quick_wins = raw.get("quick_wins") or []
+    summary = raw.get("summary") or ""
+
+    matches = []
+    match_count = 0
+    partial_count = 0
+    gap_count = 0
+
+    for req in requirements:
+        status = (req.get("status") or "partial").lower()
+        if status not in {"match", "partial", "gap"}:
+            status = "partial"
+        if status == "match":
+            match_count += 1
+        elif status == "partial":
+            partial_count += 1
+        else:
+            gap_count += 1
+        comment = req.get("found_in_resume") or req.get("recommendation") or "—"
+        matches.append({
+            "item": req.get("requirement") or "Требование",
+            "status": status,
+            "comment": comment,
+        })
+
+    total = len(requirements)
+    score_raw = 0
+    score = 0
+    if total:
+        score_raw = round(((match_count + 0.5 * partial_count) / total) * 100)
+        score = max(1, min(10, round(score_raw / 10)))
+
+    decision = "Подумай"
+    if score >= 8:
+        decision = "Откликайся"
+    elif score <= 4:
+        decision = "Не рекомендую"
+
+    result = {
+        "score": score,
+        "score_raw": score_raw,
+        "verdict": summary or "Готово. Смотри совпадения и рекомендации.",
+        "matches": matches,
+        "requirements": requirements,
+        "quick_wins": quick_wins,
+        "summary": summary,
+        "raw": raw,
+    }
+
+    if quick_wins:
+        result["recommendation"] = {
+            "decision": decision,
+            "actions": quick_wins,
+        }
+    return result
+
+
 def call_gigachat(vacancy: str, resume: str) -> dict:
     prompt = (
         "Ты — карьерный консультант с опытом найма аналитиков.\n"
@@ -935,7 +994,8 @@ class Handler(BaseHTTPRequestHandler):
                 return
             bump_stat("analyze")
             try:
-                result = call_gigachat(vacancy, resume)
+                raw_result = call_gigachat(vacancy, resume)
+                result = _normalize_matcher_result(raw_result)
             except RuntimeError as exc:
                 duration_ms = int((time.time() - started) * 1000)
                 ts = datetime.utcnow().isoformat() + "Z"
